@@ -10,7 +10,7 @@ class StateLineFollow : public State {
         short ep = 0; // error proportional
         short ed = 0; // error derivative
         short currentBalance = 0;
-        short speedSetpoint = 200;
+        short speedSetpoint = 150;
 
         unsigned long lastUpdate;
         unsigned long newUpdate;

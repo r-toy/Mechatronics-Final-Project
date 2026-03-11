@@ -14,8 +14,8 @@ class Robot {
         const unsigned short enableLeft = 12; 
         const unsigned short in1Right = 30;
         const unsigned short in2Right = 31;
-        const unsigned short in1Left = 33;
-        const unsigned short in2Left = 32;
+        const unsigned short in1Left = 32;
+        const unsigned short in2Left = 33;
         const unsigned short pushbutton = 27;
         const unsigned short pinLeftA = 2;
         const unsigned short pinLeftB = 22;

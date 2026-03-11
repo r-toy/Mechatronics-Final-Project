@@ -2,6 +2,8 @@
 #include "mymacros.h"
 
 Robot::Robot() {
+    Serial.begin(9600);
+
     qtr.setTypeRC();
     qtr.setSensorPins((const uint8_t[8]){46, 47, 48, 49, 50, 51, 52, 53}, SensorCount);
     qtr.setEmitterPin(EmitterPin);
@@ -18,6 +20,10 @@ Robot::Robot() {
     pinMode(pinLeftB, INPUT);
     pinMode(pinRightA, INPUT);
     pinMode(pinRightB, INPUT);
+
+    for (int i = 0; i < SensorCount; i++) {
+        pinMode(36+i, OUTPUT);
+    }
 
     digitalWrite(enableLeft,LOW);
     digitalWrite(enableRight,LOW);
@@ -37,10 +43,10 @@ void Robot::LeftDistance() {
 }
 
 void Robot::RightDistance() {
-    if(digitalRead(pinLeftB) == 1)
-        countLeft_v++;
+    if(digitalRead(pinRightB) == 1)
+        countRight_v--;
     else
-        countLeft_v--;
+        countRight_v++;
     return;
 }
 
@@ -79,6 +85,7 @@ void Robot::calibrateLineSensor() {
 
 int Robot::measureLine() {
     sensorPos = qtr.readLineBlack(sensorValues);
+    Serial.println(sensorPos);
     short error = -24 + (48 * (long)(sensorPos) / 7000);
 
     for (int i = 0; i < SensorCount; i++) {
@@ -105,14 +112,10 @@ void Robot::measureSpeed() {
     // divided by microseconds
     // reduce to nm per count to end up with mm / sec
 
-    // Serial.print("countLeft = "); Serial.print(countLeft);
-    // Serial.print(" countRight = "); Serial.println(countRight);
     long measLeftSpeed = 453786 * countLeft / timestep;
     long measRightSpeed = 453786 * countRight / timestep;
     measuredSpeed = (measLeftSpeed + measRightSpeed) / 2; //mm per second
     measuredBalance = 1024 * (measLeftSpeed - measRightSpeed) / width; // 1024th of radians per second
-    // Serial.print("Speed = "); Serial.print(measuredSpeed);
-    // Serial.print(" Balance = "); Serial.println(measuredBalance);
     return; 
 }
 
