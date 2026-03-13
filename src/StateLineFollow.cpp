@@ -20,10 +20,9 @@ void StateLineFollow::update(){
         ed = ep;
         ep = ctx_->ourRobot->measureLine();
         ed = ep - ed;
-        currentBalance = ep*kp + ed*kd;
-        // Serial.println(currentBalance);
+        currentOmega = ep*kp + ed*kd;
         // currentSpeed = currentSpeed + (speedSetpoint - ctx_->ourRobot->measSpeed)*kp;
-        ctx_->ourRobot->diffDrive(speedSetpoint, currentBalance);
+        ctx_->ourRobot->omni4WD(vfwdSetpoint, vhorzSetpoint, currentOmega);
     }
 
     //if (ctx_->ourRobot->readPushbutton) ctx_->transitionTo(new StatePivotRight)

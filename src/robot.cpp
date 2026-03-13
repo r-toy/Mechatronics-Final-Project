@@ -1,6 +1,11 @@
 #include "robot.h"
 #include "mymacros.h"
 
+void isrFLDistance();
+void isrFRDistance();
+void isrBLDistance();
+void isrBRDistance();
+
 Robot::Robot() {
     Serial.begin(9600);
 
@@ -10,30 +15,51 @@ Robot::Robot() {
 
     pinMode(LED_BUILTIN, OUTPUT);
     pinMode(pushbutton,INPUT_PULLUP);
-    pinMode(enableLeft, OUTPUT);
-    pinMode(enableRight, OUTPUT);
-    pinMode(in1Left, OUTPUT);
-    pinMode(in1Right, OUTPUT);
-    pinMode(in2Left, OUTPUT);
-    pinMode(in2Right, OUTPUT);
-    pinMode(pinLeftA, INPUT);
-    pinMode(pinLeftB, INPUT);
-    pinMode(pinRightA, INPUT);
-    pinMode(pinRightB, INPUT);
+
+    pinMode(enableFL,OUTPUT);
+    pinMode(enableFR,OUTPUT);
+
+    pinMode(enableBL,OUTPUT);
+    pinMode(enableBR,OUTPUT);
+
+    pinMode(in1FL,OUTPUT);
+    pinMode(in2FL,OUTPUT);
+    pinMode(in1FR,OUTPUT);
+    pinMode(in2FR,OUTPUT);
+
+    pinMode(in1BL,OUTPUT);
+    pinMode(in2BL,OUTPUT);
+    pinMode(in1BR,OUTPUT);
+    pinMode(in2BR,OUTPUT);
+
+    pinMode(encFL_A,INPUT);
+    pinMode(encFL_B,INPUT);
+    pinMode(encFR_A,INPUT);
+    pinMode(encFR_B,INPUT);
+    
+    pinMode(encBL_A,INPUT);
+    pinMode(encBL_B,INPUT);
+    pinMode(encBR_A,INPUT);
+    pinMode(encBR_B,INPUT);
+
+    attachInterrupt(digitalPinToInterrupt(encFL_A),isrFLDistance,RISING);
+    attachInterrupt(digitalPinToInterrupt(encFR_A),isrFRDistance,RISING);
+    attachInterrupt(digitalPinToInterrupt(encBL_A),isrBLDistance,RISING);
+    attachInterrupt(digitalPinToInterrupt(encBR_A),isrBRDistance,RISING);
 
     for (int i = 0; i < SensorCount; i++) {
         pinMode(36+i, OUTPUT);
     }
 
-    digitalWrite(enableLeft,LOW);
-    digitalWrite(enableRight,LOW);
-
-    attachInterrupt(digitalPinToInterrupt(pinLeftA),leftISR,RISING);
-    attachInterrupt(digitalPinToInterrupt(pinRightA),rightISR,RISING);
+    digitalWrite(enableFL,LOW);
+    digitalWrite(enableFR,LOW);
+    digitalWrite(enableBL,LOW);
+    digitalWrite(enableBR,LOW);
 
     calibrateLineSensor();
 }
 
+/*
 void Robot::LeftDistance() {
     if(digitalRead(pinLeftB) == 1)
         countLeft_v++;
@@ -49,7 +75,35 @@ void Robot::RightDistance() {
         countRight_v++;
     return;
 }
+    */
 
+void Robot::FLDistance() {
+  if(digitalRead(encFL_B) == 1)
+    countFL_v++;
+  else
+    countFL_v--;
+}
+
+void Robot::FRDistance() {
+  if(digitalRead(encFR_B) == 0)
+    countFR_v++;
+  else
+    countFR_v--;
+}
+
+void Robot::BLDistance() {
+  if(digitalRead(encBL_B) == 1)
+    countBL_v++;
+  else
+    countBL_v--;
+}
+
+void Robot::BRDistance() {
+  if(digitalRead(encBR_B) == 0)
+    countBR_v++;
+  else
+    countBR_v--;
+}
 int Robot::pushbuttonRead() {
     int pressedornot = !digitalRead(pushbutton);
     return pressedornot;
@@ -86,7 +140,7 @@ void Robot::calibrateLineSensor() {
 int Robot::measureLine() {
     sensorPos = qtr.readLineBlack(sensorValues);
     Serial.println(sensorPos);
-    short error = -24 + (48 * (long)(sensorPos) / 7000);
+    short error = 24 - (48 * (long)(sensorPos) / 7000);
 
     for (int i = 0; i < SensorCount; i++) {
       if (sensorValues[i] > sensorAvg[i]) {
@@ -101,6 +155,96 @@ int Robot::measureLine() {
     return error;
 }
 
+void Robot::measureSpeed() {
+    noInterrupts();
+    long countFL = countFL_v;
+    long countFR = countFR_v;
+    long countBL = countBL_v;
+    long countBR = countBR_v;
+    countFL_v = 0;
+    countFR_v = 0;
+    countBL_v = 0;
+    countBR_v = 0;
+    interrupts();
+
+    // Serial.print("countLeft = "); Serial.print(countLeft);
+    // Serial.print(" countRight = "); Serial.println(countRight);
+
+    // 167.552 micrometers per count
+    // divided by microseconds
+    // reduce to nm per count to end up with mm / sec
+    
+    long measFLspeed = umPerCt * countFL / timestep;
+    long measFRspeed = umPerCt * countFR / timestep;
+    long measBLspeed = umPerCt * countBL / timestep;
+    long measBRspeed = umPerCt * countBR / timestep;
+
+    // baking in the sqrt(2) factor: 128 * (sum) / (128 * 4 * sqrt(2))
+    measuredvFwd  = 128 * (measFLspeed + measFRspeed + measBLspeed + measBRspeed) / 722;
+    measuredvHorz = 128 * (measFLspeed - measFRspeed - measBLspeed + measBRspeed) / 722;
+    measuredOmega = 256 * (measFRspeed - measFLspeed - measBLspeed + measBRspeed) / centercorner;
+
+}
+
+void Robot::omni4WD(long vfwd, long vhorz, long omega) {
+    // baking in the sqrt(2) factor: sqrt(2) * 256 * (45deg rotation) / 256
+    long vFL = 361 * (vfwd + vhorz) / 256 - (centercorner * omega) / 64;
+    long vFR = 361 * (vfwd - vhorz) / 256 + (centercorner * omega) / 64;
+    long vBL = 361 * (vfwd - vhorz) / 256 - (centercorner * omega) / 64;
+    long vBR = 361 * (vfwd + vhorz) / 256 + (centercorner * omega) / 64;
+
+    /*
+    Serial.print(" vFL = "); Serial.print(vFL);
+    Serial.print(" vFR = "); Serial.print(vFR);
+    Serial.print(" vBL = "); Serial.print(vBL);
+    Serial.print(" vBR = "); Serial.println(vBR);
+    //*/
+    
+    uint16_t dirFL, dirFR, dirBL, dirBR;
+    dirFL = SIGN(vFL);
+    dirFR = SIGN(vFR);
+    dirBL = SIGN(vBL);
+    dirBR = SIGN(vBR);
+    vFL = ABS(vFL);
+    vFR = ABS(vFR);
+    vBL = ABS(vBL);
+    vBR = ABS(vBR);
+
+
+    uint16_t pwmFL, pwmFR, pwmBL, pwmBR;
+
+    pwmFL = (vFL > 255) ? 255 : vFL;
+    pwmFR = (vFR > 255) ? 255 : vFR;
+    pwmBL = (vBL > 255) ? 255 : vBL;
+    pwmBR = (vBR > 255) ? 255 : vBR;
+    
+    digitalWrite(enableFL, LOW);
+    digitalWrite(enableFR, LOW);
+    digitalWrite(enableBL, LOW);
+    digitalWrite(enableBR, LOW);
+
+    digitalWrite(in1FL, dirFL);
+    digitalWrite(in2FL, !dirFL);
+    digitalWrite(in1FR, dirFR);
+    digitalWrite(in2FR, !dirFR);
+    digitalWrite(in1BL, dirBL);
+    digitalWrite(in2BL, !dirBL);
+    digitalWrite(in1BR, dirBR);
+    digitalWrite(in2BR, !dirBR);
+    // Serial.print(pwmL);
+    // Serial.print(" ");
+    // Serial.println(pwmR);
+
+    analogWrite(enableFL, pwmFL);
+    analogWrite(enableFR, pwmFR);
+    analogWrite(enableBL, pwmBL);
+    analogWrite(enableBR, pwmBR);
+
+    return;
+}
+
+
+/*
 void Robot::measureSpeed() {
   noInterrupts();
     long countLeft = countLeft_v;
@@ -147,29 +291,4 @@ void Robot::diffDrive(short vcm, short omega) {
 
     return;
 }
-
-void Robot::rightTurn(short vcm) {
-    diffDrive(vcm, 64);
-    delay(1000);
-    diffDrive(0, 0);
-
-    return;
-}
-
-void Robot::rightTurn(short vcm) {
-    diffDrive(vcm, -64);
-    delay(1000);
-    diffDrive(0, 0);
-
-    return;
-}
-
-void Robot::resetBlacks() {
-    blacks = 0;
-
-    return;
-}
-
-int Robot::readBlacks() {
-    return blacks;
-}
+*/
