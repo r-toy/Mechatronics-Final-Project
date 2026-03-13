@@ -14,10 +14,17 @@ void loop() {
   ctx->update();
 }
 
-void leftISR() {
-  ctx->ourRobot->LeftDistance();
+void isrFLDistance() {
+  ctx->ourRobot->FLDistance();
 }
 
-void rightISR() {
-  ctx->ourRobot->RightDistance();
+void isrFRDistance() {
+  ctx->ourRobot->FRDistance();
+
+}void isrBLDistance() {
+  ctx->ourRobot->BLDistance();
+}
+
+void isrBRDistance() {
+  ctx->ourRobot->BRDistance();
 }
