@@ -1,10 +1,10 @@
-#ifndef STATEMAZE2_H
-#define STATEMAZE2_H
+#ifndef STATEMAZE3_H
+#define STATEMAZE3_H
 
 #include "state.h"
 #include "StateLineFollow.h"
 
-class StateMaze2 : public StateLineFollow {
+class StateMaze3 : public StateLineFollow {
     private:
         unsigned int distance = 0;
 

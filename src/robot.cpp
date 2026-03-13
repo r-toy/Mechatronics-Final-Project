@@ -243,6 +243,30 @@ void Robot::omni4WD(long vfwd, long vhorz, long omega) {
     return;
 }
 
+void Robot::rightTurn(short vfwd) {
+    omni4WD(vfwd, 0, -64);
+    delay(1000);
+
+    return;
+}
+
+void Robot::leftTurn(short vfwd) {
+    omni4WD(vfwd, 0, 64);
+    delay(1000);
+
+    return;
+}
+
+void Robot::resetBlacks() {
+    blacks = 0;
+
+    return;
+}
+
+int Robot::readBlacks() {
+    return blacks;
+}
+
 
 /*
 void Robot::measureSpeed() {

@@ -2,10 +2,9 @@
 #include "robot.h"
 #include "context.h"
 #include "state.h"
-#include "StateMaze2.h"
 #include "StateMaze3.h"
 
-void StateMaze2::update(){
+void StateMaze3::update(){
     newUpdate = micros();
 
     if( (newUpdate - lastUpdate) > ctx_->ourRobot->timestep){
@@ -21,7 +20,7 @@ void StateMaze2::update(){
         // Serial.println(currentBalance);
         // currentSpeed = currentSpeed + (speedSetpoint - ctx_->ourRobot->measSpeed)*kp;
         if (ctx_->ourRobot->readBlacks() == 0) {
-            ctx_->transitionTo(new StateMaze3);
+            ctx_->transitionTo(new StateLineFollow);
         }
         ctx_->ourRobot->omni4WD(vfwdSetpoint, vhorzSetpoint, currentOmega);
         ctx_->ourRobot->resetBlacks();
@@ -30,12 +29,6 @@ void StateMaze2::update(){
     //if (ctx_->ourRobot->readPushbutton) ctx_->transitionTo(new StatePivotRight)
 }
 
-void StateMaze2::exit() {
-    ctx_->ourRobot->omni4WD(vfwdSetpoint, 0, 0);
-    delay(800);
-    ctx_->ourRobot->rightTurn(vfwdSetpoint);
-    ctx_->ourRobot->omni4WD(vfwdSetpoint, 0, 0);
-    delay(1500);
-
-    return;
+void StateMaze3::exit() {
+    
 }

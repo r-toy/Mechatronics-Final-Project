@@ -3,6 +3,7 @@
 #include "context.h"
 #include "state.h"
 #include "StateMaze1.h"
+#include "StateMaze2.h"
 
 void StateMaze1::update(){
     newUpdate = micros();
@@ -16,23 +17,25 @@ void StateMaze1::update(){
         ed = ep;
         ep = ctx_->ourRobot->measureLine();
         ed = ep - ed;
-        currentBalance = ep*kp + ed*kd;
+        currentOmega = ep*kp + ed*kd;
         // Serial.println(currentBalance);
         // currentSpeed = currentSpeed + (speedSetpoint - ctx_->ourRobot->measSpeed)*kp;
         if (ctx_->ourRobot->readBlacks() == 0) {
-            ctx_->transitionTo(new )
+            ctx_->transitionTo(new StateMaze2);
         }
-        ctx_->ourRobot->diffDrive(speedSetpoint, currentBalance);
+        ctx_->ourRobot->omni4WD(vfwdSetpoint, vhorzSetpoint, currentOmega);
+        ctx_->ourRobot->resetBlacks();
     }
 
     //if (ctx_->ourRobot->readPushbutton) ctx_->transitionTo(new StatePivotRight)
 }
 
 void StateMaze1::exit() {
-    ctx_->ourRobot->diffDrive(speedSetpoint, 0);
-    delay(1000);
-    ctx_->ourRobot->leftTurn(speedSetpoint);
-    ctx_->ourRobot->diffDrive(speedSetpoint, 0);
+    ctx_->ourRobot->omni4WD(vfwdSetpoint, 0, 0);
+    delay(800);
+    ctx_->ourRobot->leftTurn(vfwdSetpoint);
+    ctx_->ourRobot->omni4WD(vfwdSetpoint, 0, 0);
+    delay(1500);
 
     return;
 }
