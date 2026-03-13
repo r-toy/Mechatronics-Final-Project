@@ -4,7 +4,7 @@
 #include "state.h"
 
 class StateLineFollow : public State {
-    private:
+    protected:
         const int kp = 8;
         const int kd = 1;
         short ep = 0; // error proportional

@@ -22,7 +22,7 @@ class Robot {
         const unsigned short pinRightA = 3;
         const unsigned short pinRightB = 23;
         const unsigned short LEDbase = 36;
-        const unsigned short width = 240; //mm
+        const short width = 240; //mm
         const unsigned long nmPerCount = 226892;
 
         QTRSensors qtr;
@@ -34,6 +34,9 @@ class Robot {
         unsigned short sensorAvg[SensorCount];
         unsigned short sensorPos;
 
+        // num sensors Black
+        unsigned int blacks = 0;
+
         volatile int countLeft_v = 0;
         volatile int countRight_v = 0;
 
@@ -42,10 +45,15 @@ class Robot {
         ~Robot() = default;
 
         int pushbuttonRead();
+        int readBlacks();
         void calibrateLineSensor();
         int measureLine();
         void measureSpeed();
         void diffDrive(short, short);
+        void rightTurn(short);
+        void leftTurn(short);
+        void resetBlacks();
+
 
         void LeftDistance();
         void RightDistance();

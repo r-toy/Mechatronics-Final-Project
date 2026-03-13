@@ -2,13 +2,9 @@
 #include "robot.h"
 #include "context.h"
 #include "state.h"
-#include "StateLineFollow.h"
+#include "StateMaze1.h"
 
-void StateLineFollow::enter() {
-    lastUpdate = micros();
-}
-
-void StateLineFollow::update(){
+void StateMaze1::update(){
     newUpdate = micros();
 
     if( (newUpdate - lastUpdate) > ctx_->ourRobot->timestep){
@@ -23,12 +19,20 @@ void StateLineFollow::update(){
         currentBalance = ep*kp + ed*kd;
         // Serial.println(currentBalance);
         // currentSpeed = currentSpeed + (speedSetpoint - ctx_->ourRobot->measSpeed)*kp;
+        if (ctx_->ourRobot->readBlacks() == 0) {
+            ctx_->transitionTo(new )
+        }
         ctx_->ourRobot->diffDrive(speedSetpoint, currentBalance);
     }
 
     //if (ctx_->ourRobot->readPushbutton) ctx_->transitionTo(new StatePivotRight)
-}   
+}
 
-void StateLineFollow::exit(){
+void StateMaze1::exit() {
+    ctx_->ourRobot->diffDrive(speedSetpoint, 0);
+    delay(1000);
+    ctx_->ourRobot->leftTurn(speedSetpoint);
+    ctx_->ourRobot->diffDrive(speedSetpoint, 0);
 
+    return;
 }
