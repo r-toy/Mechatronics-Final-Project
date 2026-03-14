@@ -4,10 +4,11 @@
 #include "context.h"
 
 void StateTEST::enter() {
-
+    ctx_->ourRobot->omni4WD(0,0,0);
 }
 
 void StateTEST::update() {
+    ctx_->ourRobot->omni4WD(0,0,0);
     ctx_->ourRobot->servoPosition(0);
     delay(1000);
     ctx_->ourRobot->servoPosition(90);

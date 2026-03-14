@@ -1,6 +1,7 @@
 #include "StateInit.h"
 #include "StateLineFollow.h"
 #include "StateTEST.h"
+#include "StateMaze1.h"
 #include "context.h"
 #include "robot.h"
 
@@ -14,7 +15,7 @@ void StateInit::enter() {
 
 void StateInit::update() {
     if(ctx_->ourRobot->pushbuttonRead() == 1)
-        ctx_ -> transitionTo(new StateLineFollow);
+        ctx_ -> transitionTo(new StateMaze1);
 }
 
 void StateInit::exit() {

@@ -125,14 +125,17 @@ void Robot::calibrateLineSensor() {
 
 int Robot::measureLine() {
     sensorPos = qtr.readLineBlack(sensorValues);
-    Serial.println(sensorPos);
+    // Serial.println(sensorPos);
     short error = 24 - (48 * (long)(sensorPos) / 7000);
 
+    blackSenses = 0;
     for (int i = 0; i < SensorCount; i++) {
-      if (sensorValues[i] > sensorAvg[i]) {
-        // digitalWrite(LEDbase+i,LOW);
-        blacks++;
-      }
+        if (sensorValues[i] < 250) {
+            // digitalWrite(LEDbase+i,LOW);
+            blackSenses++;
+        }
+        Serial.print(sensorValues[i]); Serial.print(" ");
+        Serial.println("");
     //   else {
     //     digitalWrite(LEDbase+i,HIGH);
     //   }
@@ -235,26 +238,20 @@ void Robot::servoPosition(int angle){
 
 void Robot::rightTurn(short vfwd) {
     omni4WD(vfwd, 0, -64);
-    delay(1000);
 
     return;
 }
 
 void Robot::leftTurn(short vfwd) {
     omni4WD(vfwd, 0, 64);
-    delay(1000);
 
     return;
 }
 
-void Robot::resetBlacks() {
-    blacks = 0;
 
-    return;
-}
-
-int Robot::readBlacks() {
-    return blacks;
+int Robot::readBlackSenses() {
+    Serial.print("black senses: "); Serial.println(blackSenses);
+    return blackSenses;
 }
 
 
