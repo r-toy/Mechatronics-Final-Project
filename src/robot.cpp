@@ -130,11 +130,12 @@ int Robot::measureLine() {
 
     for (int i = 0; i < SensorCount; i++) {
       if (sensorValues[i] > sensorAvg[i]) {
-        digitalWrite(LEDbase+i,LOW);
+        // digitalWrite(LEDbase+i,LOW);
+        blacks++;
       }
-      else {
-        digitalWrite(LEDbase+i,HIGH);
-      }
+    //   else {
+    //     digitalWrite(LEDbase+i,HIGH);
+    //   }
     }
 
     return error;
@@ -232,6 +233,30 @@ void Robot::servoPosition(int angle){
     armServo.write(angle);
 }
 
+void Robot::rightTurn(short vfwd) {
+    omni4WD(vfwd, 0, -64);
+    delay(1000);
+
+    return;
+}
+
+void Robot::leftTurn(short vfwd) {
+    omni4WD(vfwd, 0, 64);
+    delay(1000);
+
+    return;
+}
+
+void Robot::resetBlacks() {
+    blacks = 0;
+
+    return;
+}
+
+int Robot::readBlacks() {
+    return blacks;
+}
+
 
 /*
 void Robot::measureSpeed() {
@@ -256,9 +281,10 @@ void Robot::measureSpeed() {
 void Robot::diffDrive(short vcm, short omega) {
     digitalWrite(enableRight, LOW);
     digitalWrite(enableLeft, LOW);
-    int16_t vR = vcm + (width / 2 * omega) / 64;
-    int16_t vL = vcm - (width / 2 * omega) / 64;
+    short vR = vcm + (width / 2 * omega) / 64;
+    short vL = vcm - (width / 2 * omega) / 64;
 
+    // Serial.print("VR "); Serial.print(vR); Serial.print(" VL "); Serial.println(vL);
     unsigned short dirL, dirR;
     dirL = SIGN(vL);
     dirR = SIGN(vR);

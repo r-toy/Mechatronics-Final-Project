@@ -36,6 +36,9 @@ class Robot {
 
         Servo armServo;
         unsigned short servoPin = 6;
+        
+        // num sensors Black
+        unsigned int blacks = 0;
 
         volatile int countFL_v;
         volatile int countFR_v;
@@ -47,9 +50,14 @@ class Robot {
         ~Robot() = default;
 
         int pushbuttonRead();
+        int readBlacks();
         void calibrateLineSensor();
         int measureLine();
         void measureSpeed();
+        void rightTurn(short);
+        void leftTurn(short);
+        void resetBlacks();
+
         void omni4WD(long, long, long);
         void servoPosition(int);
 
