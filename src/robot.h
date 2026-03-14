@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <QTRSensors.h>
+#include <Servo.h>
 
 void leftISR();
 void rightISR();
@@ -33,8 +34,11 @@ class Robot {
         unsigned short sensorAvg[SensorCount];
         unsigned short sensorPos;
 
+        Servo armServo;
+        unsigned short servoPin = 6;
+
         // num sensors Black
-        unsigned int blacks = 0;
+        unsigned int blackSenses = 0;
 
         volatile int countFL_v;
         volatile int countFR_v;
@@ -46,15 +50,15 @@ class Robot {
         ~Robot() = default;
 
         int pushbuttonRead();
-        int readBlacks();
+        int readBlackSenses();
         void calibrateLineSensor();
         int measureLine();
         void measureSpeed();
         void rightTurn(short);
         void leftTurn(short);
-        void resetBlacks();
 
         void omni4WD(long, long, long);
+        void servoPosition(int);
 
         void FLDistance();
         void FRDistance();

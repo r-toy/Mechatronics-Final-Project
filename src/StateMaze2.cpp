@@ -5,6 +5,10 @@
 #include "StateMaze2.h"
 #include "StateMaze3.h"
 
+void StateMaze2::enter(){
+    Serial.println("entering state 2");
+}
+
 void StateMaze2::update(){
     newUpdate = micros();
 
@@ -20,22 +24,21 @@ void StateMaze2::update(){
         currentOmega = ep*kp + ed*kd;
         // Serial.println(currentBalance);
         // currentSpeed = currentSpeed + (speedSetpoint - ctx_->ourRobot->measSpeed)*kp;
-        if (ctx_->ourRobot->readBlacks() == 0) {
+        if (ctx_->ourRobot->readBlackSenses() == 0) {
             ctx_->transitionTo(new StateMaze3);
         }
         ctx_->ourRobot->omni4WD(vfwdSetpoint, vhorzSetpoint, currentOmega);
-        ctx_->ourRobot->resetBlacks();
     }
 
     //if (ctx_->ourRobot->readPushbutton) ctx_->transitionTo(new StatePivotRight)
 }
 
 void StateMaze2::exit() {
-    ctx_->ourRobot->omni4WD(vfwdSetpoint, 0, 0);
-    delay(800);
-    ctx_->ourRobot->rightTurn(vfwdSetpoint);
-    ctx_->ourRobot->omni4WD(vfwdSetpoint, 0, 0);
-    delay(1500);
+    Serial.println("exiting state 2");
+    ctx_->ourRobot->leftTurn(vfwdSetpoint);
+    while (ctx_->ourRobot->readBlackSenses() == 0) {
+        ctx_->ourRobot->measureLine();
+    }
 
     return;
 }

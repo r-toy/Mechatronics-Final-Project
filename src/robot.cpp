@@ -13,6 +13,9 @@ Robot::Robot() {
     qtr.setSensorPins((const uint8_t[8]){46, 47, 48, 49, 50, 51, 52, 53}, SensorCount);
     qtr.setEmitterPin(EmitterPin);
 
+    armServo.attach(servoPin);
+    armServo.write(90);
+
     pinMode(LED_BUILTIN, OUTPUT);
     pinMode(pushbutton,INPUT_PULLUP);
 
@@ -59,23 +62,6 @@ Robot::Robot() {
     calibrateLineSensor();
 }
 
-/*
-void Robot::LeftDistance() {
-    if(digitalRead(pinLeftB) == 1)
-        countLeft_v++;
-    else
-        countLeft_v--;
-    return;
-}
-
-void Robot::RightDistance() {
-    if(digitalRead(pinRightB) == 1)
-        countRight_v--;
-    else
-        countRight_v++;
-    return;
-}
-    */
 
 void Robot::FLDistance() {
   if(digitalRead(encFL_B) == 1)
@@ -139,14 +125,17 @@ void Robot::calibrateLineSensor() {
 
 int Robot::measureLine() {
     sensorPos = qtr.readLineBlack(sensorValues);
-    Serial.println(sensorPos);
+    // Serial.println(sensorPos);
     short error = 24 - (48 * (long)(sensorPos) / 7000);
 
+    blackSenses = 0;
     for (int i = 0; i < SensorCount; i++) {
-      if (sensorValues[i] > sensorAvg[i]) {
-        // digitalWrite(LEDbase+i,LOW);
-        blacks++;
-      }
+        if (sensorValues[i] < 250) {
+            // digitalWrite(LEDbase+i,LOW);
+            blackSenses++;
+        }
+        Serial.print(sensorValues[i]); Serial.print(" ");
+        Serial.println("");
     //   else {
     //     digitalWrite(LEDbase+i,HIGH);
     //   }
@@ -243,28 +232,26 @@ void Robot::omni4WD(long vfwd, long vhorz, long omega) {
     return;
 }
 
+void Robot::servoPosition(int angle){
+    armServo.write(angle);
+}
+
 void Robot::rightTurn(short vfwd) {
     omni4WD(vfwd, 0, -64);
-    delay(1000);
 
     return;
 }
 
 void Robot::leftTurn(short vfwd) {
     omni4WD(vfwd, 0, 64);
-    delay(1000);
 
     return;
 }
 
-void Robot::resetBlacks() {
-    blacks = 0;
 
-    return;
-}
-
-int Robot::readBlacks() {
-    return blacks;
+int Robot::readBlackSenses() {
+    Serial.print("black senses: "); Serial.println(blackSenses);
+    return blackSenses;
 }
 
 

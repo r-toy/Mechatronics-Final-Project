@@ -1,8 +1,13 @@
 #include <Arduino.h>
 #include "robot.h"
 #include "context.h"
+#include "StateTEST.h"
 #include "state.h"
 #include "StateMaze3.h"
+
+void StateMaze3::enter(){
+    Serial.println("entering state 3");
+}
 
 void StateMaze3::update(){
     newUpdate = micros();
@@ -19,16 +24,15 @@ void StateMaze3::update(){
         currentOmega = ep*kp + ed*kd;
         // Serial.println(currentBalance);
         // currentSpeed = currentSpeed + (speedSetpoint - ctx_->ourRobot->measSpeed)*kp;
-        if (ctx_->ourRobot->readBlacks() == 0) {
-            ctx_->transitionTo(new StateLineFollow);
+        if (ctx_->ourRobot->readBlackSenses() == 0) {
+            ctx_->transitionTo(new StateTEST);
         }
         ctx_->ourRobot->omni4WD(vfwdSetpoint, vhorzSetpoint, currentOmega);
-        ctx_->ourRobot->resetBlacks();
     }
 
     //if (ctx_->ourRobot->readPushbutton) ctx_->transitionTo(new StatePivotRight)
 }
 
 void StateMaze3::exit() {
-    
+    ctx_->ourRobot->omni4WD(0,0,0);
 }
