@@ -13,6 +13,9 @@ Robot::Robot() {
     qtr.setSensorPins((const uint8_t[8]){46, 47, 48, 49, 50, 51, 52, 53}, SensorCount);
     qtr.setEmitterPin(EmitterPin);
 
+    armServo.attach(servoPin);
+    armServo.write(90);
+
     pinMode(LED_BUILTIN, OUTPUT);
     pinMode(pushbutton,INPUT_PULLUP);
 
@@ -59,23 +62,6 @@ Robot::Robot() {
     calibrateLineSensor();
 }
 
-/*
-void Robot::LeftDistance() {
-    if(digitalRead(pinLeftB) == 1)
-        countLeft_v++;
-    else
-        countLeft_v--;
-    return;
-}
-
-void Robot::RightDistance() {
-    if(digitalRead(pinRightB) == 1)
-        countRight_v--;
-    else
-        countRight_v++;
-    return;
-}
-    */
 
 void Robot::FLDistance() {
   if(digitalRead(encFL_B) == 1)
@@ -240,6 +226,10 @@ void Robot::omni4WD(long vfwd, long vhorz, long omega) {
     analogWrite(enableBR, pwmBR);
 
     return;
+}
+
+void Robot::servoPosition(int angle){
+    armServo.write(angle);
 }
 
 

@@ -21,8 +21,9 @@ void StateLineFollow::update(){
         ep = ctx_->ourRobot->measureLine();
         ed = ep - ed;
         currentOmega = ep*kp + ed*kd;
+        currentVhorz = ep/8;
         // currentSpeed = currentSpeed + (speedSetpoint - ctx_->ourRobot->measSpeed)*kp;
-        ctx_->ourRobot->omni4WD(vfwdSetpoint, vhorzSetpoint, currentOmega);
+        ctx_->ourRobot->omni4WD(vfwdSetpoint, currentVhorz, currentOmega);
     }
 
     //if (ctx_->ourRobot->readPushbutton) ctx_->transitionTo(new StatePivotRight)

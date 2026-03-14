@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <QTRSensors.h>
+#include <Servo.h>
 
 void leftISR();
 void rightISR();
@@ -33,6 +34,9 @@ class Robot {
         unsigned short sensorAvg[SensorCount];
         unsigned short sensorPos;
 
+        Servo armServo;
+        unsigned short servoPin = 6;
+
         volatile int countFL_v;
         volatile int countFR_v;
         volatile int countBL_v;
@@ -47,6 +51,7 @@ class Robot {
         int measureLine();
         void measureSpeed();
         void omni4WD(long, long, long);
+        void servoPosition(int);
 
         void FLDistance();
         void FRDistance();
