@@ -1,5 +1,6 @@
 #include "robot.h"
 #include "mymacros.h"
+#include <Adafruit_TCS34725.h>
 
 void isrFLDistance();
 void isrFRDistance();
@@ -8,6 +9,14 @@ void isrBRDistance();
 
 Robot::Robot() {
     Serial.begin(9600);
+
+    Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_614MS, TCS34725_GAIN_1X);
+    if (tcs.begin()) {
+        Serial.println("Found sensor");
+    } else {
+        Serial.println("No TCS34725 found ... check your connections");
+        while (1);
+    }
 
     qtr.setTypeRC();
     qtr.setSensorPins((const uint8_t[8]){46, 47, 48, 49, 50, 51, 52, 53}, SensorCount);
@@ -60,6 +69,7 @@ Robot::Robot() {
     digitalWrite(enableBR,LOW);
 
     calibrateLineSensor();
+
 }
 
 
@@ -252,6 +262,13 @@ void Robot::omni4WD(long vfwd, long vhorz, long omega) {
     analogWrite(enableBL, pwmBL);
     analogWrite(enableBR, pwmBR);
 
+    if (tcs.begin()) {
+    Serial.println("Found sensor");
+  } else {
+    Serial.println("No TCS34725 found ... check your connections");
+    while (1);
+  }
+
     return;
 }
 
@@ -275,6 +292,14 @@ void Robot::leftTurn(short vfwd) {
 int Robot::readBlackSenses() {
     // Serial.print("black senses: "); Serial.println(blackSenses);
     return blackSenses;
+}
+
+void Robot::senseColor() {
+    tcs.getRawData(&r, &g, &b, &c);
+    colorTemp = tcs.calculateColorTemperature_dn40(r, g, b, c);
+    lux = tcs.calculateLux(r, g, b);
+
+    return;
 }
 
 

@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <QTRSensors.h>
+#include <Adafruit_TCS34725.h>
 #include <Servo.h>
 
 void leftISR();
@@ -11,6 +12,7 @@ void rightISR();
 class Robot {
 
     private:
+
 
         const int enableFR = 11, enableFL = 12, enableBR = 9, enableBL = 10;
         const int in1FR = 30, in2FR = 31, in1FL = 32, in2FL = 33, in1BR = 36, in2BR = 37, in1BL = 38, in2BL = 39;
@@ -24,6 +26,8 @@ class Robot {
         int centercorner = 170; //mm, sqrt(2) * width
         long umPerCt = 167552; // micrometers per count, calculate this
 
+        Adafruit_TCS34725 tcs;
+        unsigned short r, g, b, c, colorTemp, lux;
         QTRSensors qtr;
         static const unsigned char SensorCount = 8;
         const unsigned short EmitterPin = 45;
@@ -53,6 +57,8 @@ class Robot {
         void rightTurn(short);
         void leftTurn(short);
 
+        void senseColor();
+
         int measuredvFwd = 0, measuredvHorz = 0, measuredOmega = 0;
 
         void brake();
@@ -63,6 +69,7 @@ class Robot {
         void FRDistance();
         void BLDistance();
         void BRDistance();
+
 
         // num sensors Black
         unsigned int blackSenses = 0;

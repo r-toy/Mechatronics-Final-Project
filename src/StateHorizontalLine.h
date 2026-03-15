@@ -1,13 +1,12 @@
-#ifndef STATEMAZE2_H
-#define STATEMAZE2_H
+#ifndef STATEMAZE1_H
+#define STATEMAZE1_H
 
 #include "state.h"
 #include "StateLineFollow.h"
 
-class StateMaze2 : public StateLineFollow {
+class StateMaze1 : public StateLineFollow {
     private:
         unsigned int distance = 0;
-        const long timer = 200000;
 
     public:
         void enter() override;
