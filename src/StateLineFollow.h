@@ -10,7 +10,7 @@ class StateLineFollow : public State {
         short ep = 0; // error proportional
         short ed = 0; // error derivative
         short currentVfwd = 100, currentVhorz = 0, currentOmega = 0;
-        short vfwdSetpoint = 150, vhorzSetpoint = 0, omegaSetpoint;
+        static const short vfwdSetpoint = 150, vhorzSetpoint = 0, omegaSetpoint;
 
         unsigned long lastUpdate;
         unsigned long newUpdate;

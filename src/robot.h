@@ -25,7 +25,6 @@ class Robot {
 
         int centercorner = 170; //mm, sqrt(2) * width
         long umPerCt = 167552; // micrometers per count, calculate this
-        int measuredvFwd = 0, measuredvHorz = 0, measuredOmega = 0;
 
         Adafruit_TCS34725 tcs;
         unsigned short r, g, b, c, colorTemp, lux;
@@ -40,9 +39,6 @@ class Robot {
 
         Servo armServo;
         unsigned short servoPin = 6;
-
-        // num sensors Black
-        unsigned int blackSenses = 0;
 
         volatile int countFL_v;
         volatile int countFR_v;
@@ -63,6 +59,9 @@ class Robot {
 
         void senseColor();
 
+        int measuredvFwd = 0, measuredvHorz = 0, measuredOmega = 0;
+
+        void brake();
         void omni4WD(long, long, long);
         void servoPosition(int);
 
@@ -72,6 +71,8 @@ class Robot {
         void BRDistance();
 
 
+        // num sensors Black
+        unsigned int blackSenses = 0;
 
         short measuredSpeed;
         short measuredBalance;

@@ -22,17 +22,19 @@ void StateMaze3::update(){
         ep = ctx_->ourRobot->measureLine();
         ed = ep - ed;
         currentOmega = ep*kp + ed*kd;
+        currentVhorz = ep/8;
         // Serial.println(currentBalance);
         // currentSpeed = currentSpeed + (speedSetpoint - ctx_->ourRobot->measSpeed)*kp;
-        if (ctx_->ourRobot->readBlackSenses() == 0) {
+        if (ctx_->ourRobot->readBlackSenses() > 4) {
             ctx_->transitionTo(new StateTEST);
         }
-        ctx_->ourRobot->omni4WD(vfwdSetpoint, vhorzSetpoint, currentOmega);
+        ctx_->ourRobot->omni4WD(vfwdSetpoint, currentVhorz, currentOmega);
     }
 
     //if (ctx_->ourRobot->readPushbutton) ctx_->transitionTo(new StatePivotRight)
 }
 
 void StateMaze3::exit() {
-    ctx_->ourRobot->omni4WD(0,0,0);
+    Serial.println("exiting state 3");
+    ctx_->ourRobot->brake();
 }
