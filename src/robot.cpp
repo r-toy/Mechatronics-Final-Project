@@ -156,8 +156,10 @@ void Robot::measureSpeed() {
     countBR_v = 0;
     interrupts();
 
-    // Serial.print("countLeft = "); Serial.print(countLeft);
-    // Serial.print(" countRight = "); Serial.println(countRight);
+    Serial.print("countFL = "); Serial.print(countFL);
+    Serial.print(" countFR = "); Serial.print(countFR);
+    Serial.print("countBL = "); Serial.print(countBL);
+    Serial.print(" countBR = "); Serial.print(countBR);
 
     // 167.552 micrometers per count
     // divided by microseconds
