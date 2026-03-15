@@ -7,6 +7,7 @@
 class StateMaze2 : public StateLineFollow {
     private:
         unsigned int distance = 0;
+        const long timer = 200000;
 
     public:
         void enter() override;

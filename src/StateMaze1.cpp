@@ -42,6 +42,7 @@ void StateMaze1::exit() {
     while (1) {
         newUpdate = micros();
         if (newUpdate - lastUpdate > ctx_->ourRobot->timestep) {
+            lastUpdate = micros();
             ctx_->ourRobot->measureLine();
             if (ctx_->ourRobot->readBlackSenses() != 0)
                 break;
