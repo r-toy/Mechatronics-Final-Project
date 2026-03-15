@@ -12,7 +12,6 @@ void StateTEST::update() {
 
         // control loop update
         ctx_->ourRobot->measureSpeed();
-        Serial.print("measVfwd = "); Serial.println(ctx_->ourRobot->measuredvFwd);
         distance += (long)ctx_->ourRobot->measuredvFwd*(ctx_->ourRobot->timestep/1000)/1000;
         // ep = ctx_->ourRobot->measBalance + ctx_->ourRobot->measureLine();
         ed = ep;

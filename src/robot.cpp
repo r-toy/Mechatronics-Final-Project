@@ -69,33 +69,32 @@ Robot::Robot() {
     digitalWrite(enableBR,LOW);
 
     calibrateLineSensor();
-
 }
 
 
 void Robot::FLDistance() {
-  if(digitalRead(encFL_B) == 1)
+  if(digitalRead(encFL_B) == 0)
     countFL_v++;
   else
     countFL_v--;
 }
 
 void Robot::FRDistance() {
-  if(digitalRead(encFR_B) == 0)
+  if(digitalRead(encFR_B) == 1)
     countFR_v++;
   else
     countFR_v--;
 }
 
 void Robot::BLDistance() {
-  if(digitalRead(encBL_B) == 1)
+  if(digitalRead(encBL_B) == 0)
     countBL_v++;
   else
     countBL_v--;
 }
 
 void Robot::BRDistance() {
-  if(digitalRead(encBR_B) == 0)
+  if(digitalRead(encBR_B) == 1)
     countBR_v++;
   else
     countBR_v--;
@@ -168,7 +167,7 @@ void Robot::measureSpeed() {
 
     Serial.print("countFL = "); Serial.print(countFL);
     Serial.print(" countFR = "); Serial.print(countFR);
-    Serial.print("countBL = "); Serial.print(countBL);
+    Serial.print(" countBL = "); Serial.print(countBL);
     Serial.print(" countBR = "); Serial.print(countBR);
 
     // 167.552 micrometers per count
@@ -185,6 +184,7 @@ void Robot::measureSpeed() {
     measuredvHorz = 128 * (measFLspeed - measFRspeed - measBLspeed + measBRspeed) / 722;
     measuredOmega = 256 * (measFRspeed - measFLspeed - measBLspeed + measBRspeed) / centercorner;
 
+    Serial.print("measVfwd = "); Serial.println(measuredvFwd);
 }
 
 void Robot::brake(){
