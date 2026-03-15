@@ -23,12 +23,13 @@ void StateMaze1::update(){
         ep = ctx_->ourRobot->measureLine();
         ed = ep - ed;
         currentOmega = ep*kp + ed*kd;
+        currentVhorz = ep/8;
         // Serial.println(currentBalance);
         // currentSpeed = currentSpeed + (speedSetpoint - ctx_->ourRobot->measSpeed)*kp;
         if (ctx_->ourRobot->readBlackSenses() == 0) {
             ctx_->transitionTo(new StateMaze2);
         }
-        ctx_->ourRobot->omni4WD(vfwdSetpoint, vhorzSetpoint, currentOmega);
+        ctx_->ourRobot->omni4WD(vfwdSetpoint, currentVhorz, currentOmega);
     }
 
     //if (ctx_->ourRobot->readPushbutton) ctx_->transitionTo(new StatePivotRight)
@@ -36,13 +37,13 @@ void StateMaze1::update(){
 
 void StateMaze1::exit() {
     Serial.println("exiting state 1");
-    ctx_->ourRobot->leftTurn(vfwdSetpoint);
+    ctx_->ourRobot->omni4WD(vfwdSetpoint,0,70);
     lastUpdate = micros();
     while (1) {
         newUpdate = micros();
         if (newUpdate - lastUpdate > ctx_->ourRobot->timestep) {
             ctx_->ourRobot->measureLine();
-            if (ctx_->ourRobot->readBlackSenses() == 0)
+            if (ctx_->ourRobot->readBlackSenses() != 0)
                 break;
         }
     }

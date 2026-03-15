@@ -130,16 +130,16 @@ int Robot::measureLine() {
 
     blackSenses = 0;
     for (int i = 0; i < SensorCount; i++) {
-        if (sensorValues[i] < 250) {
+        if (sensorValues[i] > 900) {
             // digitalWrite(LEDbase+i,LOW);
             blackSenses++;
         }
-        Serial.print(sensorValues[i]); Serial.print(" ");
-        Serial.println("");
+        // Serial.print(sensorValues[i]); Serial.print(" ");
     //   else {
     //     digitalWrite(LEDbase+i,HIGH);
     //   }
     }
+    // Serial.println("");
 
     return error;
 }
@@ -173,6 +173,27 @@ void Robot::measureSpeed() {
     measuredvHorz = 128 * (measFLspeed - measFRspeed - measBLspeed + measBRspeed) / 722;
     measuredOmega = 256 * (measFRspeed - measFLspeed - measBLspeed + measBRspeed) / centercorner;
 
+}
+
+void Robot::brake(){
+    digitalWrite(enableFL,LOW);
+    digitalWrite(enableFR,LOW);
+    digitalWrite(enableBL,LOW);
+    digitalWrite(enableBR,LOW);
+
+    digitalWrite(in1FL,LOW);
+    digitalWrite(in2FL,LOW);
+    digitalWrite(in1FR,LOW);
+    digitalWrite(in2FR,LOW);
+    digitalWrite(in1BL,LOW);
+    digitalWrite(in2BL,LOW);
+    digitalWrite(in1BR,LOW);
+    digitalWrite(in2BR,LOW);
+
+    digitalWrite(enableFL,HIGH);
+    digitalWrite(enableFR,HIGH);
+    digitalWrite(enableBL,HIGH);
+    digitalWrite(enableBR,HIGH);
 }
 
 void Robot::omni4WD(long vfwd, long vhorz, long omega) {
@@ -250,7 +271,7 @@ void Robot::leftTurn(short vfwd) {
 
 
 int Robot::readBlackSenses() {
-    Serial.print("black senses: "); Serial.println(blackSenses);
+    // Serial.print("black senses: "); Serial.println(blackSenses);
     return blackSenses;
 }
 
