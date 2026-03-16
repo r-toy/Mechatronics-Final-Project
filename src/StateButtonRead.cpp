@@ -18,9 +18,9 @@ void StateButtonRead::enter(){
 
 }
 
-// void StateButtonRead::update(){
-//     ctx_->transitionTo(new StateHorizontalLine);
-// }
+void StateButtonRead::update(){
+    // ctx_->transitionTo(new StateHorizontalLine);
+}
 
 void StateButtonRead::exit() {
     Serial.println("exiting state ButtonRead");
