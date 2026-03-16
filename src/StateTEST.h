@@ -6,6 +6,8 @@
 class StateTEST : public State {
     private:
         long distance = 0;
+        long angle = 0;
+        int numMeas = 0;
 
         static const int kp = 8;
         static const int kd = 1;
@@ -16,6 +18,10 @@ class StateTEST : public State {
 
         unsigned long lastUpdate;
         unsigned long newUpdate;
+
+        unsigned long startTime;
+        unsigned long currentTime;
+        unsigned long moveTime = 2000000; // 2 second (in microseconds)
 
 
     public:

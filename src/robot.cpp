@@ -1,6 +1,19 @@
 #include "robot.h"
 #include "mymacros.h"
 #include <Adafruit_TCS34725.h>
+#include <math.h>
+
+// using 16384 per rotation and 1024 table size
+// output scaled -256 to 256
+long Robot::mySin(long A) {
+    return mySinTable[pos_mod(A,16384)/16];
+}
+
+// using 16384 per rotation and 1024 table size
+// output scaled -256 to 256
+long Robot::myCos(long A) {
+    return myCosTable[pos_mod(A,16384)/16];
+}
 
 void isrFLDistance();
 void isrFRDistance();
@@ -68,9 +81,18 @@ Robot::Robot() {
     digitalWrite(enableBL,LOW);
     digitalWrite(enableBR,LOW);
 
-    calibrateLineSensor();
+    // initialize sine and cosine lookup tables
+    for (int i = 0; i < 1024; i++){
+        mySinTable[i] = (int)(256*sin(i*2.0*PI/1024.0));
+        myCosTable[i] = (int)(256*cos(i*2.0*PI/1024.0));
+    }
+
+    // calibrateLineSensor();
 }
 
+int Robot::defaultEndcon(){
+    return 0;
+}
 
 void Robot::FLDistance() {
   if(digitalRead(encFL_B) == 0)
@@ -165,10 +187,10 @@ void Robot::measureSpeed() {
     countBR_v = 0;
     interrupts();
 
-    Serial.print("countFL = "); Serial.print(countFL);
-    Serial.print(" countFR = "); Serial.print(countFR);
-    Serial.print(" countBL = "); Serial.print(countBL);
-    Serial.print(" countBR = "); Serial.print(countBR);
+    // Serial.print("countFL = "); Serial.print(countFL);
+    // Serial.print(" countFR = "); Serial.print(countFR);
+    // Serial.print(" countBL = "); Serial.print(countBL);
+    // Serial.print(" countBR = "); Serial.print(countBR);
 
     // 167.552 micrometers per count
     // divided by microseconds
@@ -179,12 +201,23 @@ void Robot::measureSpeed() {
     long measBLspeed = umPerCt * countBL / timestep;
     long measBRspeed = umPerCt * countBR / timestep;
 
-    // baking in the sqrt(2) factor: 128 * (sum) / (128 * 4 * sqrt(2))
+    // Serial.print(" measFLspeed = "); Serial.print(measFLspeed);
+    // Serial.print(" measFRspeed = "); Serial.print(measFRspeed);
+    // Serial.print(" measBLspeed = "); Serial.print(measBLspeed);
+    // Serial.print(" measBRspeed = "); Serial.print(measBRspeed);
+
+   // baking in the sqrt(2) factor: 128 * (sum) / (128 * 4 * sqrt(2))
     measuredvFwd  = 128 * (measFLspeed + measFRspeed + measBLspeed + measBRspeed) / 722;
     measuredvHorz = 128 * (measFLspeed - measFRspeed - measBLspeed + measBRspeed) / 722;
-    measuredOmega = 256 * (measFRspeed - measFLspeed - measBLspeed + measBRspeed) / centercorner;
 
-    Serial.print("measVfwd = "); Serial.println(measuredvFwd);
+    // measuredOmega equals average of velocities to the left around center divided by distance to center
+    // measuredOmega = 256 * (measFRspeed - measFLspeed - measBLspeed + measBRspeed) / centercorner; // in 1024ths of radians
+
+    measuredOmega = rotPermm * (long)(measFRspeed - measFLspeed - measBLspeed + measBRspeed) / 16; // in 16384th of rotation/sec
+
+    measuredOppW = 256 * (measFLspeed + measFRspeed - measBLspeed - measBRspeed) / centercorner; // measured self-opposing angular speed
+
+    // Serial.print(" measOmega = "); Serial.println(measuredOmega);
 }
 
 void Robot::brake(){
@@ -208,12 +241,14 @@ void Robot::brake(){
     digitalWrite(enableBR,HIGH);
 }
 
-void Robot::omni4WD(long vfwd, long vhorz, long omega) {
+// DO NOT input any omegaOpp when calling
+void Robot::omni4WD(long vfwd, long vhorz, long omega, long omegaOpposing) {
+
     // baking in the sqrt(2) factor: sqrt(2) * 256 * (45deg rotation) / 256
-    long vFL = 361 * (vfwd + vhorz) / 256 - (centercorner * omega) / 64;
-    long vFR = 361 * (vfwd - vhorz) / 256 + (centercorner * omega) / 64;
-    long vBL = 361 * (vfwd - vhorz) / 256 - (centercorner * omega) / 64;
-    long vBR = 361 * (vfwd + vhorz) / 256 + (centercorner * omega) / 64;
+    long vFL = 361 * (vfwd + vhorz) / 256 - (centercorner * omega) / 64 + (centercorner * omegaOpposing) / 64;
+    long vFR = 361 * (vfwd - vhorz) / 256 + (centercorner * omega) / 64 + (centercorner * omegaOpposing) / 64;
+    long vBL = 361 * (vfwd - vhorz) / 256 - (centercorner * omega) / 64 - (centercorner * omegaOpposing) / 64;
+    long vBR = 361 * (vfwd + vhorz) / 256 + (centercorner * omega) / 64 - (centercorner * omegaOpposing) / 64;
 
     /*
     Serial.print(" vFL = "); Serial.print(vFL);
@@ -262,14 +297,292 @@ void Robot::omni4WD(long vfwd, long vhorz, long omega) {
     analogWrite(enableBL, pwmBL);
     analogWrite(enableBR, pwmBR);
 
-    if (tcs.begin()) {
-    Serial.println("Found sensor");
-  } else {
-    Serial.println("No TCS34725 found ... check your connections");
-    while (1);
-  }
-
     return;
+}
+
+// in mm, mm, deg, sec
+// rotation should be between 180 and -180
+// i cant stop you if you put it outside itll just rotate multiple times
+// either put 2 distances OR a rotation. this cannot handle both correctly.
+void Robot::move3DOF_nofdbk(long ydist, long xdist, long rotation, long speed, long omega){
+
+    long vx, vy;
+    long dist = (int)(sqrt(sq(xdist)+sq(ydist)));
+    vx = SIGNNUM(speed,xdist) * xdist / dist;
+    vy = SIGNNUM(speed,ydist) * ydist / dist;
+    omega = SIGNNUM(omega,rotation);
+
+    // internally in mm*20, mm*20, and 16384ths of rotation
+    dist *= 20;
+    xdist *= 20;
+    ydist *= 20;
+    rotation *= 16384;
+    rotation /= 360;
+
+    long measx = 0, measy = 0, measrot = 0;
+
+    // Serial.print("dist = "); Serial.print(dist);
+    // Serial.print(" measx = "); Serial.print(measx);
+    // Serial.print(" measy = "); Serial.println(measy);
+ 
+    // open loop
+    omni4WD(vy,vx,omega);
+
+    unsigned long newUpdate, lastUpdate = micros();
+
+    while( ((sq(dist) - sq(measx) - sq(measy)) > 10000) || ((ABS(rotation - measrot)) > 256) ){
+        newUpdate = micros();
+        if(newUpdate - lastUpdate > timestep) {
+            lastUpdate += timestep;
+
+            measureSpeed();
+            measy += measuredvFwd;
+            measx += measuredvHorz;
+            measrot += (measuredOmega/20);
+            Serial.print("measured rotation = "); Serial.println(measrot);
+            // Serial.print(measy); Serial.print(" = distance forward & distance horizontal = "); Serial.println(measx);
+        }
+    }
+    Serial.print(measy); Serial.print(" = distance forward & distance horizontal = "); Serial.println(measx);
+    Serial.println("done :)");
+    brake();
+}
+
+// in mm, mm, deg, sec
+// rotation should be between 180 and -180
+// i cant stop you if you put it outside itll just rotate multiple times
+void Robot::move3DOF(long ydist, long xdist, long rotation, int (*endcon)(void), long speed){
+
+    long vx_des, vy_des;
+    long dist = (int)(sqrt(sq(xdist)+sq(ydist)));
+    vx_des = SIGNNUM(speed,xdist) * xdist / dist;
+    vy_des = SIGNNUM(speed,ydist) * ydist / dist;
+    long omega_des = defaultOmega*(SIGNNUM(128,rotation));;
+
+    // integrated units internally in mm*20, and 16384ths of rotation
+    dist *= 20;
+    xdist *= 20;
+    ydist *= 20;
+    rotation *= 16384;
+    rotation /= 360;
+
+    // Serial.print("dist = "); Serial.println(dist);
+
+    long measx = 0, measy = 0, measrot = 0;
+
+    long ei_y, ei_x, ei_omega;
+    long ep_y, ep_x, ep_omega, ep_omegaOpp;
+    long ed_y, ed_x, ed_omega, ed_omegaOpp;
+    long vy = vy_des, vx = vx_des, omega = defaultOmega, omegaOpp = 0;
+
+    omni4WD(vy,vx,omega,omegaOpp);
+    measureSpeed();
+
+    unsigned long newUpdate, lastUpdate = micros();
+
+    // Serial.print("condition = "); Serial.println(sq(dist) - sq(measx) - sq(measy));
+    while( ((sq(dist) - sq(measx) - sq(measy)) > 10000) || ((ABS(rotation - measrot)) > 128) ){
+        newUpdate = micros();
+
+        if(endcon() != 0){
+            omni4WD(0,0,0);
+            return;
+        }
+
+        if(newUpdate - lastUpdate > timestep) {
+        // Serial.print("condition = "); Serial.println((ABS(rotation - measrot)) > 256);            
+            lastUpdate += timestep;
+
+            if(ydist - measy < 100){
+                vy_des = 0;
+            }
+            if(xdist - measx < 100){
+                vx_des = 0;
+            }
+            if(rotation - measrot < 128){
+                omega_des = 0;
+            }
+
+            ed_y = ep_y;
+            ed_x = ep_x;
+            ed_omega = measuredOmega;
+            ed_omegaOpp = measuredOppW;
+
+            measureSpeed();
+
+            measy += measuredvFwd;
+            measx += measuredvHorz;
+            measrot += (measuredOmega/20);
+            // Serial.print("measured ydist = "); Serial.println(measy);
+            // Serial.print("measured xdist = "); Serial.println(measx);
+            // Serial.print("measured rotation = "); Serial.println(measrot);
+
+            // Control
+
+            // pos control
+            ei_y = UPPERBOUND(ydist - measy,20);
+            ei_x = UPPERBOUND(xdist - measx,40);
+            ei_omega = UPPERBOUND(rotation - measrot,128);
+
+            // vel control
+
+            // noise rejection
+            ep_y  = (vy_des - LOWERBOUND(measuredvFwd,20));
+            ep_x = (vx_des - LOWERBOUND(measuredvHorz,20));
+
+            ep_omega = (omega_des-measuredOmega);
+            ep_omegaOpp = (0-measuredOppW);
+
+            // vel control
+            ed_y = ed_y - ep_y;
+            ed_x = ed_x - ep_x;
+            ed_omega = ed_omega - ep_omega;
+            ed_omegaOpp = ed_omegaOpp - ep_omegaOpp;
+            //*/
+
+            Serial.print("vfwd ep = "); Serial.println(ep_y);
+
+            vy += (ep_y*kp + ed_y*kd)/32;
+            vx += (ep_x*kp + ed_x*kd)/32;
+            omega += (ep_omega*kp_omega + ed_omega*kd_omega) / 2048;
+            omegaOpp += (ep_omegaOpp*kp_omegaOpp + ed_omegaOpp*kd_omegaOpp) / 2048;
+
+            Serial.print("vfwd set = "); Serial.println(vy);
+
+            omni4WD(vy + (ei_y*ki)/32, vx + (ei_x*ki)/32, omega + (ei_omega*ki_omega/1024), omegaOpp);
+            // Serial.println("timestamp check");
+        }
+    }
+    Serial.print("distance forward = "); Serial.print(measy);
+    Serial.print(" & distance horizontal = "); Serial.println(measx);
+    Serial.print("total rotation = "); Serial.println(measrot);
+    Serial.println("done :)");
+    brake();
+    // omni4WD(0,0,0); // coast
+}
+
+// in mm, mm, deg, sec
+// rotation should be between 180 and -180
+// i cant stop you if you put it outside itll just rotate multiple times
+void Robot::move3DOF_heading(long ydist, long xdist, long rotation, int (*endcon)(void), long speed){
+
+    long vx_des, vy_des;
+    long dist = (int)(sqrt(sq(xdist)+sq(ydist)));
+    vx_des = SIGNNUM(speed,xdist) * xdist / dist;
+    vy_des = SIGNNUM(speed,ydist) * ydist / dist;
+    long omega_des = defaultOmega*(SIGNNUM(128,rotation));
+
+    // integrated units internally in mm*20, and 16384ths of rotation
+    dist *= 20;
+    xdist *= 20;
+    ydist *= 20;
+    rotation *= 16384;
+    rotation /= 360;
+
+    long measx = 0, measy = 0, measrot = 0;
+    long curCos, curSin;
+
+    // in order: error for vfwd, vhorz, omega, and omegaOpp
+    long ei_y, ei_x, ei_omega, iHorz, iFwd;
+    long ep_y, ep_x, ep_omega, ep_omegaOpp;
+    long ed_y, ed_x, ed_omega, ed_omegaOpp;
+    long vy = vy_des, vx = vx_des, vHorz, vFwd, omega = defaultOmega, omegaOpp = 0;
+ 
+    omni4WD(vy,vx,omega,omegaOpp);
+    measureSpeed();
+
+    unsigned long newUpdate, lastUpdate = micros();
+
+    // Serial.print("condition = "); Serial.println(sq(dist) - sq(measx) - sq(measy));
+    while( ((sq(dist) - sq(measx) - sq(measy)) > 10000) || ((ABS(rotation - measrot)) > 128) ){
+        newUpdate = micros();
+
+        if(endcon() != 0){
+            omni4WD(0,0,0);
+            return;
+        }
+
+        if(newUpdate - lastUpdate > timestep) {
+        // Serial.print("condition = "); Serial.println((ABS(rotation - measrot)) > 256);            
+            lastUpdate += timestep;
+
+            if(ydist - measy < 100){
+                vy_des = 0;
+            }
+            if(xdist - measx < 100){
+                vx_des = 0;
+            }
+            if(rotation - measrot < 128){
+                omega_des = 0;
+            }
+
+            ed_y = ep_y;
+            ed_x = ep_x;
+            ed_omega = measuredOmega;
+            ed_omegaOpp = measuredOppW;
+
+            measureSpeed();
+
+            measrot += (measuredOmega/20);
+            curCos = myCos(measrot);
+            curSin = mySin(measrot);
+
+            // need to account for rotation
+            long measuredvx = curCos*measuredvHorz/256 - curSin*measuredvFwd/256;
+            long measuredvy = curSin*measuredvHorz/256 + curCos*measuredvFwd/256;
+
+            measy += measuredvy;
+            measx += measuredvx;
+
+            // Control
+
+            // pos control
+            ei_y = UPPERBOUND(ydist - measy,40);
+            ei_x = UPPERBOUND(xdist - measx,40);
+            ei_omega = UPPERBOUND(rotation - measrot,128);
+
+            // need to account for rotation
+            // vel control
+
+            // noise rejection
+            ep_y  = (vy_des - LOWERBOUND(measuredvy,20));
+            ep_x = (vx_des - LOWERBOUND(measuredvx,20));
+            
+            ep_omega = (omega_des - measuredOmega);
+            ep_omegaOpp = (0 - measuredOppW);
+
+            // vel control
+            ed_y = ed_y - ep_y;
+            ed_x = ed_x - ep_x;
+            ed_omega = ed_omega - ep_omega;
+            ed_omegaOpp = ed_omegaOpp - ep_omegaOpp;
+            //*/
+
+            vy += (ep_y*kp + ed_y*kd)/32;
+            vx += (ep_x*kp + ed_x*kd)/32;
+            omega += (ep_omega*kp_omega + ed_omega*kd_omega) / 2048;
+            omegaOpp += (ep_omegaOpp*kp_omegaOpp + ed_omegaOpp*kd_omegaOpp) / 2048;
+
+            Serial.print("measured vy = "); Serial.println(measuredvy);
+            Serial.print("ep_y = "); Serial.println(ep_y);
+
+            // need to account for rotation
+            // transform x,y back into fwd, horz
+            vHorz = curCos*vx/256 + curSin*vy/256;
+            vFwd = -curSin*vx/256 + curCos*vy/256;
+
+            iHorz = curCos*(ei_x*ki)/8192 + curSin*(ei_y*ki)/8192;
+            iFwd = -curSin*(ei_x*ki)/8192 + curCos*(ei_y*ki)/8192;
+
+            omni4WD(vFwd + iFwd,vHorz + iHorz,omega + (ei_omega*ki_omega/1024),omegaOpp);
+            // Serial.println("timestamp check");
+        }
+    }
+    Serial.print("distance forward = "); Serial.print(measy);
+    Serial.print(" & distance horizontal = "); Serial.println(measx);
+    Serial.print("total rotation = "); Serial.println(measrot);
+    Serial.println("done :)");
+    brake();
 }
 
 void Robot::servoPosition(int angle){
@@ -301,53 +614,3 @@ void Robot::senseColor() {
 
     return;
 }
-
-
-/*
-void Robot::measureSpeed() {
-  noInterrupts();
-    long countLeft = countLeft_v;
-    long countRight = countRight_v;
-    countLeft_v = 0;
-    countRight_v = 0;
-    interrupts();
-
-    // 453.786 micrometers per count
-    // divided by microseconds
-    // reduce to nm per count to end up with mm / sec
-
-    long measLeftSpeed = 453786 * countLeft / timestep;
-    long measRightSpeed = 453786 * countRight / timestep;
-    measuredSpeed = (measLeftSpeed + measRightSpeed) / 2; //mm per second
-    measuredBalance = 1024 * (measLeftSpeed - measRightSpeed) / width; // 1024th of radians per second
-    return; 
-}
-
-void Robot::diffDrive(short vcm, short omega) {
-    digitalWrite(enableRight, LOW);
-    digitalWrite(enableLeft, LOW);
-    short vR = vcm + (width / 2 * omega) / 64;
-    short vL = vcm - (width / 2 * omega) / 64;
-
-    // Serial.print("VR "); Serial.print(vR); Serial.print(" VL "); Serial.println(vL);
-    unsigned short dirL, dirR;
-    dirL = SIGN(vL);
-    dirR = SIGN(vR);
-    vL = ABS(vL);
-    vR = ABS(vR);
-
-    unsigned short pwmR, pwmL;
-    pwmL = (vL > 255) ? 255 : vL;
-    pwmR = (vR > 255) ? 255 : vR;
-    
-    digitalWrite(in1Left, dirL);
-    digitalWrite(in2Left, !dirL);
-    digitalWrite(in1Right, dirR);
-    digitalWrite(in2Right, !dirR);
-
-    analogWrite(enableRight, pwmR);
-    analogWrite(enableLeft, pwmL);
-
-    return;
-}
-*/

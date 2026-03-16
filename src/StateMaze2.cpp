@@ -22,7 +22,7 @@ void StateMaze2::update(){
         ep = ctx_->ourRobot->measureLine();
         ed = ep - ed;
         currentOmega = ep*kp + ed*kd;
-        currentVhorz = ep/8;
+        currentVhorz = ep/2;
         // Serial.println(currentBalance);
         // currentSpeed = currentSpeed + (speedSetpoint - ctx_->ourRobot->measSpeed)*kp;
         if (ctx_->ourRobot->readBlackSenses() == 0) {
@@ -43,7 +43,7 @@ void StateMaze2::exit() {
     while (1) {
         newUpdate = micros();
         if (newUpdate - lastUpdate > ctx_->ourRobot->timestep) {
-            lastUpdate = micros();
+            lastUpdate += ctx_->ourRobot->timestep;
             update2 = micros();
             if (update2 - lastUpdate2 > timer) {
                 if (omega == -74)

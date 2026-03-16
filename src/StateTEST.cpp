@@ -2,33 +2,44 @@
 #include "robot.h"
 #include "StateTEST.h"
 #include "context.h"
+#include "mymacros.h"
 
 void StateTEST::enter() {
     Serial.println("entering state test");
+    lastUpdate = micros();
+    startTime = lastUpdate;
+    // ctx_->ourRobot->move3DOF_nofdbk(0,0,90);    
+    ctx_->ourRobot->move3DOF_heading(100,0,90);   
+    delay(125);
+    // ctx_->ourRobot->move3DOF(0,0,180);
 }
 
 void StateTEST::update() {
+    // Calibration for measureSpeed()
+    /*
+    newUpdate = micros();
+    currentTime = newUpdate;
+
+    if( currentTime - startTime > moveTime) {
+        Serial.print("Average omega = "); Serial.println(angle/numMeas);
+        Serial.print("rotation traveled = "); Serial.println(angle / 20);
+        ctx_->ourRobot->brake();
+        while(1);
+    }
+
+    else if( (newUpdate - lastUpdate) > ctx_->ourRobot->timestep){
         lastUpdate += ctx_->ourRobot->timestep;
 
-        // control loop update
         ctx_->ourRobot->measureSpeed();
-        distance += (long)ctx_->ourRobot->measuredvFwd*(ctx_->ourRobot->timestep/1000)/1000;
-        // ep = ctx_->ourRobot->measBalance + ctx_->ourRobot->measureLine();
-        ed = ep;
-        ep = ctx_->ourRobot->measureLine();
-        ed = ep - ed;
-        currentOmega = ep*kp + ed*kd;
-        currentVhorz = ep/8;
-        // Serial.println(currentBalance);
-        // currentSpeed = currentSpeed + (speedSetpoint - ctx_->ourRobot->measSpeed)*kp;
-        if (ctx_->ourRobot->readBlackSenses() == 0) {
-            ctx_->ourRobot->brake();
-            Serial.print("distance = "); Serial.println(distance);
-            while(1);
-        }
-        ctx_->ourRobot->omni4WD(vfwdSetpoint, currentVhorz, currentOmega);
+        numMeas++;
+        distance += ctx_->ourRobot->measuredvFwd;
+        angle += ctx_->ourRobot->measuredOmega;
+        Serial.print("Measured omega = "); Serial.println(ctx_->ourRobot->measuredOmega);
 
-    //if (ctx_->ourRobot->readPushbutton) ctx_->transitionTo(new StatePivotRight)    
+        ctx_->ourRobot->omni4WD(100,0,0);
+
+    }
+    //*/
 }
 
 void StateTEST::exit() {

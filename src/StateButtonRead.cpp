@@ -19,7 +19,7 @@ void StateButtonRead::enter(){
 }
 
 void StateButtonRead::update(){
-    ctx_->transitionTo(new StateHorizontalLine);
+    // ctx_->transitionTo(new StateHorizontalLine);
 }
 
 void StateButtonRead::exit() {

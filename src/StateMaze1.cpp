@@ -38,15 +38,18 @@ void StateMaze1::update(){
 void StateMaze1::exit() {
     Serial.println("exiting state 1");
     ctx_->ourRobot->omni4WD(vfwdSetpoint,0,70);
-    lastUpdate = micros();
-    while (1) {
-        newUpdate = micros();
-        if (newUpdate - lastUpdate > ctx_->ourRobot->timestep) {
-            lastUpdate = micros();
-            ctx_->ourRobot->measureLine();
-            if (ctx_->ourRobot->readBlackSenses() != 0)
-                break;
-        }
+    // lastUpdate = micros();
+    // while (1) {
+    //     newUpdate = micros();
+    //     if (newUpdate - lastUpdate > ctx_->ourRobot->timestep) {
+    //         lastUpdate += ctx_->ourRobot->timestep;
+    //         ctx_->ourRobot->measureLine();
+    //         if (ctx_->ourRobot->readBlackSenses() != 0)
+    //             break;
+    //     }
+    // }
+    while(ctx_->ourRobot->readBlackSenses() == 0){
+        ctx_->ourRobot->measureLine();
     }
 
     return;
