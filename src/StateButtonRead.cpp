@@ -18,13 +18,14 @@ void StateButtonRead::enter(){
 
 }
 
-void StateButtonRead::update(){
-    ctx_->transitionTo(new StateHorizontalLine);
-}
+// void StateButtonRead::update(){
+//     ctx_->transitionTo(new StateHorizontalLine);
+// }
 
 void StateButtonRead::exit() {
     Serial.println("exiting state ButtonRead");
-    ctx_->ourRobot->leftTurn(vfwdSetpoint);
+    ctx_->ourRobot->omni4WD(0, 150, 0);
+
     lastUpdate = micros();
     while (1) {
         newUpdate = micros();
