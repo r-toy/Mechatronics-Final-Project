@@ -12,8 +12,6 @@ void rightISR();
 class Robot {
 
     private:
-        int defaultEndcon();
-
         const int enableFR = 11, enableFL = 12, enableBR = 9, enableBL = 10;
         const int in1FR = 30, in2FR = 31, in1FL = 32, in2FL = 33, in1BR = 36, in2BR = 37, in1BL = 38, in2BL = 39;
         const int encFL_A = 2, encFR_A = 3, encBL_A = 18, encBR_A = 19;
@@ -78,6 +76,8 @@ class Robot {
         int colorDetect();
 
         int measuredvFwd = 0, measuredvHorz = 0, measuredOmega = 0, measuredOppW;
+
+        int defaultEndcon();
 
         void brake();
         void omni4WD(long vfwd, long vhorz, long Omega, long omegaOpposing = 0);

@@ -9,6 +9,7 @@ class StateMaze3 : public StateLineFollow {
         unsigned int distance = 0;
         unsigned long time = 0;
         const unsigned long timeConst = 3000000;
+        const short maze3vFwd = 100;
 
     public:
         void enter() override;

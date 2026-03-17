@@ -16,7 +16,7 @@ void StateInit::enter() {
     delay(125);
     ctx_->ourRobot->calibrateLineSensor();
     delay(125);
-    ctx_->ourRobot->move3DOF_heading(0,0,-90);
+    ctx_->ourRobot->move3DOF_heading(-30,0,-90);
 
 }
 

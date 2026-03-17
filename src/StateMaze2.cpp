@@ -39,7 +39,7 @@ void StateMaze2::exit() {
     // long update2 = 0, lastUpdate2 = micros();
     Serial.println("exiting state 2");
     ctx_->ourRobot->move3DOF_heading(225, 0, 0);
-    ctx_->ourRobot->move3DOF_heading(-100, 500, -180, &Robot::scanReadSenses);
+    ctx_->ourRobot->move3DOF_heading(-50, 500, 180, &Robot::scanReadSenses);
     // ctx_->ourRobot->omni4WD(vfwdSetpoint,0,-74);
     // lastUpdate = micros();
     // while (1) {

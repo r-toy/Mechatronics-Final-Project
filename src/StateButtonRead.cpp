@@ -20,7 +20,7 @@ float StateButtonRead::vDistance(const int *one, const int *two){
 
 void StateButtonRead::enter(){
     Serial.println("entering state ButtonRead");
-    ctx_->ourRobot->move3DOF_heading(300, 0, 0);
+    ctx_->ourRobot->move3DOF_heading(300, 0, 0, &Robot::defaultEndcon,255);
     ctx_->ourRobot->move3DOF_heading(-20, 25, -45);
     ctx_->ourRobot->move3DOF_heading(20, 25, -45);
     // ctx_->ourRobot->omni4WD(vfwdSetpoint, 0, 0);
