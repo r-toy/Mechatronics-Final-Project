@@ -1,22 +1,16 @@
 #include <Arduino.h>
 #include "robot.h"
 #include "context.h"
+#include "mymacros.h"
 #include "state.h"
 #include "StateButtonRead.h"
+#include "StateBar.h"
 #include "StateBlue.h"
 #include "StateGreen.h"
 #include "StateRed.h"
 #include "StateYellow.h"
 
-float vDistance(const int *one, const int *two){
-  int i = 0, dsqr = 0;
-  for (i; i < 3; i++) {
-    dsqr += (one[i] - two[i]) * (one[i] - two[i]);
-  }
-  return sqrt((double)(dsqr));
-}
-
-void StateButtonRead::enter(){
+void StateBar::enter(){
     Serial.println("entering state Bar");
     ctx_->ourRobot->servoPosition(180);
     ctx_->ourRobot->move3DOF_heading(0, 400, 0);
@@ -25,7 +19,8 @@ void StateButtonRead::enter(){
 
 }
 
-void StateButtonRead::update(){
+void StateBar::update(){
+    /*
     // ctx_->transitionTo(new StateHorizontalLine);
     const int *colors = ctx_->ourRobot->readColors();
     float redSim = vDistance(colors, redAvg2);
@@ -44,14 +39,14 @@ void StateButtonRead::update(){
         ctx_->transitionTo(new StateBlue);
     else
         ctx_->transitionTo(new StateYellow);
-
+    //*/
 }
 
-void StateButtonRead::exit() {
+void StateBar::exit() {
     Serial.println("exiting state ButtonRead");
     ctx_->ourRobot->omni4WD(0, 150, 0);
 
-    lastUpdate = micros();
+    long newUpdate, lastUpdate = micros();
     while (1) {
         newUpdate = micros();
         if (newUpdate - lastUpdate > ctx_->ourRobot->timestep) {

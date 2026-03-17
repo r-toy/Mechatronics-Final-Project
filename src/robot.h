@@ -50,14 +50,14 @@ class Robot {
         volatile int countBR_v = 0;
 
         // default speed to use for move3DOF
-        static const int defaultSpeed = 50;
-        static const int defaultOmega = 24;
+        static const int defaultSpeed = 100;
+        static const int defaultOmega = 32;
 
         // 3DOF control gains
         // in order: 
         // ki/kp/kv were 12/8/3 for ok driving
-        const long ki = 4, ki_omega = 8; //kio = 8, kpo = 14, kdo = 1 for good turns
-        const long kp = 8, kp_omega = 14, kp_omegaOpp = 16;
+        const long ki = 2, ki_omega = 8; //kio = 8, kpo = 14, kdo = 1 for good turns
+        const long kp = 4, kp_omega = 14, kp_omegaOpp = 16;
         const long kd = 0, kd_omega = 1, kd_omegaOpp = 4;
 
         // lookup
@@ -82,8 +82,8 @@ class Robot {
         void brake();
         void omni4WD(long vfwd, long vhorz, long Omega, long omegaOpposing = 0);
         void move3DOF_nofdbk(long ydist, long xdist, long rotation, long speed = defaultSpeed, long omega = defaultOmega);
-        void move3DOF(long ydist, long xdist, long rotation, int (Robot::*endcon)(void) = defaultEndcon, long speed = defaultSpeed);
-        void move3DOF_heading(long ydist, long xdist, long rotation, int (Robot::*endcon)(void) = defaultEndcon, long speed = defaultSpeed);
+        void move3DOF(long ydist, long xdist, long rotation, int (Robot::*endcon)(void) = &Robot::defaultEndcon, long speed = defaultSpeed);
+        void move3DOF_heading(long ydist, long xdist, long rotation, int (Robot::*endcon)(void) = &Robot::defaultEndcon, long speed = defaultSpeed);
         void rightTurn(short);
         void leftTurn(short);
         void servoPosition(int);

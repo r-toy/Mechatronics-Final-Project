@@ -468,8 +468,10 @@ void Robot::move3DOF_heading(long ydist, long xdist, long rotation, int (Robot::
 
     long vx_des, vy_des;
     long dist = (int)(sqrt(sq(xdist)+sq(ydist)));
-    vx_des = SIGNNUM(speed,xdist) * xdist / dist;
-    vy_des = SIGNNUM(speed,ydist) * ydist / dist;
+
+    // These need to be in the same "units" as the measurements
+    vx_des = 2*SIGNNUM(speed,xdist) * xdist / dist;
+    vy_des = 2*SIGNNUM(speed,ydist) * ydist / dist;
     long omega_des = defaultOmega*(SIGNNUM(128,rotation));
 
     // integrated units internally in mm*20, and 16384ths of rotation

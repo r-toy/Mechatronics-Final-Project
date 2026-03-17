@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "robot.h"
 #include "context.h"
+#include "mymacros.h"
 #include "state.h"
 #include "StateButtonRead.h"
 #include "StateRed.h"
@@ -8,13 +9,14 @@
 #include "StateBlue.h"
 #include "StateYellow.h"
 
-float vDistance(const int *one, const int *two){
-  int i = 0, dsqr = 0;
-  for (i; i < 3; i++) {
+float StateButtonRead::vDistance(const int *one, const int *two){
+  int dsqr = 0;
+  for (int i = 0; i < 3; i++) {
     dsqr += (one[i] - two[i]) * (one[i] - two[i]);
   }
   return sqrt((double)(dsqr));
 }
+
 
 void StateButtonRead::enter(){
     Serial.println("entering state ButtonRead");

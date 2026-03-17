@@ -9,7 +9,7 @@ void StateTEST::enter() {
     lastUpdate = micros();
     startTime = lastUpdate;
     // ctx_->ourRobot->move3DOF_nofdbk(0,0,90);    
-    ctx_->ourRobot->move3DOF_heading(100,0,0);   
+    ctx_->ourRobot->move3DOF_heading(100,0,90);   
     delay(125);
     // ctx_->ourRobot->move3DOF(0,0,180);
 }
