@@ -51,7 +51,7 @@ class Robot {
 
         // default speed to use for move3DOF
         static const int defaultSpeed = 100;
-        static const int defaultOmega = 32;
+        static const int defaultOmega = 24;
 
         // 3DOF control gains
         // in order: 

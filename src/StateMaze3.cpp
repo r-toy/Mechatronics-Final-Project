@@ -4,6 +4,7 @@
 #include "StateTEST.h"
 #include "state.h"
 #include "StateMaze3.h"
+#include "StateButtonRead.h"
 
 void StateMaze3::enter(){
     Serial.println("entering state 3");
@@ -26,7 +27,7 @@ void StateMaze3::update(){
         // Serial.println(currentBalance);
         // currentSpeed = currentSpeed + (speedSetpoint - ctx_->ourRobot->measSpeed)*kp;
         if (ctx_->ourRobot->readBlackSenses() > 4) {
-            ctx_->transitionTo(new StateTEST);
+            ctx_->transitionTo(new StateButtonRead);
         }
         ctx_->ourRobot->omni4WD(vfwdSetpoint, currentVhorz, currentOmega);
     }

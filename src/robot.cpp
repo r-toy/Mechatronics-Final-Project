@@ -86,8 +86,6 @@ Robot::Robot() {
         mySinTable[i] = (int)(256*sin(i*2.0*PI/1024.0));
         myCosTable[i] = (int)(256*cos(i*2.0*PI/1024.0));
     }
-
-    // calibrateLineSensor();
 }
 
 int Robot::defaultEndcon(){
@@ -127,27 +125,12 @@ int Robot::pushbuttonRead() {
 }
 
 void Robot::calibrateLineSensor() {
-    // black calibration
-    while (digitalRead(pushbutton) == 1) {
-        // wait
-    }
     digitalWrite(LED_BUILTIN, HIGH); // turn on Arduino's LED to indicate we are in calibration mode
     for (uint16_t i = 0; i < 100; i++)
     {
         qtr.calibrate();
     }
     digitalWrite(LED_BUILTIN, LOW); // turn off Arduino's LED to indicate first calibration finished
-
-    // white calibation
-    while (digitalRead(pushbutton) == 1) {
-        // wait
-    }
-    digitalWrite(LED_BUILTIN, HIGH); // turn on Arduino's LED to indicate we are in calibration mode
-    for (uint16_t i = 0; i < 100; i++)
-    {
-        qtr.calibrate();
-    }
-    digitalWrite(LED_BUILTIN, LOW); // turn off Arduino's LED to indicate we are through with calibration
 
     for (uint8_t i = 0; i < SensorCount; i++) {
         sensorAvg[i] = (sensorMax[i] + sensorMin[i]) / 2;
@@ -308,9 +291,9 @@ void Robot::move3DOF_nofdbk(long ydist, long xdist, long rotation, long speed, l
 
     long vx, vy;
     long dist = (int)(sqrt(sq(xdist)+sq(ydist)));
-    vx = SIGNNUM(speed,xdist) * xdist / dist;
-    vy = SIGNNUM(speed,ydist) * ydist / dist;
-    omega = SIGNNUM(omega,rotation);
+    vx = APPLYSIGN(speed,xdist) * xdist / dist;
+    vy = APPLYSIGN(speed,ydist) * ydist / dist;
+    omega = APPLYSIGN(omega,rotation);
 
     // internally in mm*20, mm*20, and 16384ths of rotation
     dist *= 20;
@@ -355,9 +338,9 @@ void Robot::move3DOF(long ydist, long xdist, long rotation, int (Robot::*endcon)
 
     long vx_des, vy_des;
     long dist = (int)(sqrt(sq(xdist)+sq(ydist)));
-    vx_des = SIGNNUM(speed,xdist) * xdist / dist;
-    vy_des = SIGNNUM(speed,ydist) * ydist / dist;
-    long omega_des = defaultOmega*(SIGNNUM(128,rotation));;
+    vx_des = APPLYSIGN(speed,xdist) * xdist / dist;
+    vy_des = APPLYSIGN(speed,ydist) * ydist / dist;
+    long omega_des = defaultOmega*(APPLYSIGN(128,rotation));;
 
     // integrated units internally in mm*20, and 16384ths of rotation
     dist *= 20;
@@ -467,12 +450,14 @@ void Robot::move3DOF(long ydist, long xdist, long rotation, int (Robot::*endcon)
 void Robot::move3DOF_heading(long ydist, long xdist, long rotation, int (Robot::*endcon)(void), long speed){
 
     long vx_des, vy_des;
-    long dist = (int)(sqrt(sq(xdist)+sq(ydist)));
+    long dist = (long)(sqrt(sq(xdist)+sq(ydist)));
 
     // These need to be in the same "units" as the measurements
-    vx_des = 2*SIGNNUM(speed,xdist) * xdist / dist;
-    vy_des = 2*SIGNNUM(speed,ydist) * ydist / dist;
-    long omega_des = defaultOmega*(SIGNNUM(128,rotation));
+    vx_des = 2*speed * xdist / dist;
+    vy_des = 2*speed * ydist / dist;
+    long omega_des = defaultOmega*(APPLYSIGN(128,rotation));
+
+    Serial.print("vy_des = "); Serial.println(vy_des);
 
     // integrated units internally in mm*20, and 16384ths of rotation
     dist *= 20;
@@ -508,13 +493,13 @@ void Robot::move3DOF_heading(long ydist, long xdist, long rotation, int (Robot::
         // Serial.print("condition = "); Serial.println((ABS(rotation - measrot)) > 256);            
             lastUpdate += timestep;
 
-            if(ydist - measy < 100){
+            if(ABS(measy) > ABS(ydist) + 100){
                 vy_des = 0;
             }
-            if(xdist - measx < 100){
+            if(ABS(measx) > ABS(xdist) + 100){
                 vx_des = 0;
             }
-            if(rotation - measrot < 128){
+            if(ABS(measrot) > ABS(rotation) + 128){
                 omega_des = 0;
             }
 
@@ -539,9 +524,9 @@ void Robot::move3DOF_heading(long ydist, long xdist, long rotation, int (Robot::
             // Control
 
             // pos control
-            ei_y = UPPERBOUND(ydist - measy,40);
-            ei_x = UPPERBOUND(xdist - measx,40);
-            ei_omega = UPPERBOUND(rotation - measrot,128);
+            ei_y = (ydist > 0) ? min(ydist - measy, 40) : max(ydist - measy, -40);
+            ei_x = (xdist > 0) ? min(xdist - measx, 40) : max(xdist - measx, -40);
+            ei_omega = (rotation > 0) ? min(rotation - measrot, 128) : max(rotation - measrot, -128);
 
             // need to account for rotation
             // vel control
@@ -565,25 +550,28 @@ void Robot::move3DOF_heading(long ydist, long xdist, long rotation, int (Robot::
             omega += (ep_omega*kp_omega + ed_omega*kd_omega) / 2048;
             omegaOpp += (ep_omegaOpp*kp_omegaOpp + ed_omegaOpp*kd_omegaOpp) / 2048;
 
-            Serial.print("measured vy = "); Serial.println(measuredvy);
-            Serial.print("ep_y = "); Serial.println(ep_y);
+            // Serial.print("measured rot = "); Serial.println(measrot);
+            // Serial.print("ei omega = "); Serial.println(ei_omega);
 
             // need to account for rotation
             // transform x,y back into fwd, horz
             vHorz = curCos*vx/256 + curSin*vy/256;
             vFwd = -curSin*vx/256 + curCos*vy/256;
 
+            // div by 256, div by 32
             iHorz = curCos*(ei_x*ki)/8192 + curSin*(ei_y*ki)/8192;
             iFwd = -curSin*(ei_x*ki)/8192 + curCos*(ei_y*ki)/8192;
 
-            omni4WD(vFwd + iFwd,vHorz + iHorz,omega + (ei_omega*ki_omega/1024),omegaOpp);
+            omni4WD(vFwd + iFwd,vHorz + iHorz,omega + (ei_omega*ki_omega/128),omegaOpp);
             // Serial.println("timestamp check");
         }
     }
+    /*
     Serial.print("distance forward = "); Serial.print(measy);
     Serial.print(" & distance horizontal = "); Serial.println(measx);
     Serial.print("total rotation = "); Serial.println(measrot);
     Serial.println("done :)");
+    //*/
     brake();
 }
 

@@ -7,15 +7,22 @@
 
 void StateInit::enter() {
     // calibrate line sensor
-    for (int i = 0; i<200; i++){
-        // calibration call
+    while (ctx_->ourRobot->pushbuttonRead() == 0){
+        // wait for button
     }
+    ctx_->ourRobot->calibrateLineSensor();
+    delay(125);
+    ctx_->ourRobot->move3DOF_heading(-100,0,-90);
+    delay(125);
+    ctx_->ourRobot->calibrateLineSensor();
+    delay(125);
+    ctx_->ourRobot->move3DOF_heading(0,0,-90);
 
 }
 
 void StateInit::update() {
     if(ctx_->ourRobot->pushbuttonRead() == 1)
-        ctx_ -> transitionTo(new StateTEST);
+        ctx_ -> transitionTo(new StateMaze1);
 }
 
 void StateInit::exit() {
