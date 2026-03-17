@@ -2,6 +2,7 @@
 #include "StateLineFollow.h"
 #include "StateTEST.h"
 #include "StateMaze1.h"
+#include "StateMaze3.h"
 #include "context.h"
 #include "robot.h"
 
@@ -16,7 +17,7 @@ void StateInit::enter() {
     delay(125);
     ctx_->ourRobot->calibrateLineSensor();
     delay(125);
-    ctx_->ourRobot->move3DOF_heading(-30,0,-90);
+    ctx_->ourRobot->move3DOF_heading(-15,0,-90);
 
 }
 

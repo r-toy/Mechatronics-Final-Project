@@ -9,6 +9,7 @@
 
 void StateMaze3::enter(){
     Serial.println("entering state 3");
+    delay(500);
 }
 
 void StateMaze3::update(){
@@ -27,10 +28,13 @@ void StateMaze3::update(){
         currentVhorz = ep/8;
         // Serial.println(currentBalance);
         // currentSpeed = currentSpeed + (speedSetpoint - ctx_->ourRobot->measSpeed)*kp;
-        if (ctx_->ourRobot->readBlackSenses() > 4) {
-            ctx_->transitionTo(new StateDrift);
+        maxSenses = max(maxSenses, ctx_->ourRobot->readBlackSenses());
+        int isthebuttonpushed = ctx_->ourRobot->pushbuttonRead();
+        if ((maxSenses > 4) || isthebuttonpushed) {
+            Serial.print("max senses = "); Serial.println(maxSenses);
+            ctx_->transitionTo(new StateButtonRead);
         }
-        ctx_->ourRobot->omni4WD(vfwdSetpoint, currentVhorz, currentOmega);
+        ctx_->ourRobot->omni4WD(maze3vFwd, currentVhorz, currentOmega);
     }
 
     //if (ctx_->ourRobot->readPushbutton) ctx_->transitionTo(new StatePivotRight)

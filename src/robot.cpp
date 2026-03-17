@@ -119,6 +119,7 @@ void Robot::BRDistance() {
   else
     countBR_v--;
 }
+
 int Robot::pushbuttonRead() {
     int pressedornot = !digitalRead(pushbutton);
     return pressedornot;
@@ -457,7 +458,7 @@ void Robot::move3DOF_heading(long ydist, long xdist, long rotation, int (Robot::
     vy_des = 2*speed * ydist / dist;
     long omega_des = defaultOmega*(APPLYSIGN(128,rotation));
 
-    Serial.print("vy_des = "); Serial.println(vy_des);
+    // Serial.print("vy_des = "); Serial.println(vy_des);
 
     // integrated units internally in mm*20, and 16384ths of rotation
     dist *= 20;
