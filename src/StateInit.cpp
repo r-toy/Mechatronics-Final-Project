@@ -15,7 +15,7 @@ void StateInit::enter() {
 
 void StateInit::update() {
     if(ctx_->ourRobot->pushbuttonRead() == 1)
-        ctx_ -> transitionTo(new StateTEST);
+        ctx_ -> transitionTo(new StateMaze1);
 }
 
 void StateInit::exit() {

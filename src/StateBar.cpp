@@ -3,6 +3,10 @@
 #include "context.h"
 #include "state.h"
 #include "StateButtonRead.h"
+#include "StateBlue.h"
+#include "StateGreen.h"
+#include "StateRed.h"
+#include "StateYellow.h"
 
 float vDistance(const int *one, const int *two){
   int i = 0, dsqr = 0;
@@ -14,6 +18,7 @@ float vDistance(const int *one, const int *two){
 
 void StateButtonRead::enter(){
     Serial.println("entering state Bar");
+    ctx_->ourRobot->servoPosition(180);
     ctx_->ourRobot->move3DOF_heading(0, 400, 0);
     ctx_->ourRobot->servoPosition(90);
     ctx_->ourRobot->move3DOF_heading(0, -100, 0);
@@ -34,13 +39,10 @@ void StateButtonRead::update(){
     if (leastDistance == redSim)
         ctx_->transitionTo(new StateRed);
     else if (leastDistance == greenSim)
-        Serial.println("GREEN");
         ctx_->transitionTo(new StateGreen);
     else if (leastDistance == blueSim)
-        Serial.println("BLUE");
         ctx_->transitionTo(new StateBlue);
     else
-        Serial.println("YELLOW");
         ctx_->transitionTo(new StateYellow);
 
 }

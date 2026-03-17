@@ -74,7 +74,7 @@ class Robot {
         int measureLine();
         void measureSpeed();
         void senseColor();
-        int *readColors();
+        const int *readColors();
         int colorDetect();
 
         int measuredvFwd = 0, measuredvHorz = 0, measuredOmega = 0, measuredOppW;
