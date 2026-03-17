@@ -351,7 +351,7 @@ void Robot::move3DOF_nofdbk(long ydist, long xdist, long rotation, long speed, l
 // in mm, mm, deg, sec
 // rotation should be between 180 and -180
 // i cant stop you if you put it outside itll just rotate multiple times
-void Robot::move3DOF(long ydist, long xdist, long rotation, int (*endcon)(void), long speed){
+void Robot::move3DOF(long ydist, long xdist, long rotation, int (Robot::*endcon)(void), long speed){
 
     long vx_des, vy_des;
     long dist = (int)(sqrt(sq(xdist)+sq(ydist)));
@@ -384,7 +384,7 @@ void Robot::move3DOF(long ydist, long xdist, long rotation, int (*endcon)(void),
     while( ((sq(dist) - sq(measx) - sq(measy)) > 10000) || ((ABS(rotation - measrot)) > 128) ){
         newUpdate = micros();
 
-        if(endcon() != 0){
+        if((this->*endcon)() != 0){
             omni4WD(0,0,0);
             return;
         }
@@ -464,7 +464,7 @@ void Robot::move3DOF(long ydist, long xdist, long rotation, int (*endcon)(void),
 // in mm, mm, deg, sec
 // rotation should be between 180 and -180
 // i cant stop you if you put it outside itll just rotate multiple times
-void Robot::move3DOF_heading(long ydist, long xdist, long rotation, int (*endcon)(void), long speed){
+void Robot::move3DOF_heading(long ydist, long xdist, long rotation, int (Robot::*endcon)(void), long speed){
 
     long vx_des, vy_des;
     long dist = (int)(sqrt(sq(xdist)+sq(ydist)));
@@ -497,7 +497,7 @@ void Robot::move3DOF_heading(long ydist, long xdist, long rotation, int (*endcon
     while( ((sq(dist) - sq(measx) - sq(measy)) > 10000) || ((ABS(rotation - measrot)) > 128) ){
         newUpdate = micros();
 
-        if(endcon() != 0){
+        if((this->*endcon)() != 0){
             omni4WD(0,0,0);
             return;
         }
@@ -607,10 +607,30 @@ int Robot::readBlackSenses() {
     return blackSenses;
 }
 
+int Robot::scanReadSenses() {
+    // combines measureLine with readBlackSenses
+    measureLine();
+    return readBlackSenses();
+}
+
 void Robot::senseColor() {
+    // calculates and stores colorTemp and lux values
     tcs.getRawData(&r, &g, &b, &c);
     colorTemp = tcs.calculateColorTemperature_dn40(r, g, b, c);
     lux = tcs.calculateLux(r, g, b);
 
     return;
+}
+
+const int *Robot::readColors() {
+    // returns colors as an rgb array
+    const int colors[3] = {r, g, b};
+    return colors;
+}
+
+int Robot::colorDetect() {
+    senseColor();
+    if (lux > 250)
+        return 0;
+    return 1;
 }

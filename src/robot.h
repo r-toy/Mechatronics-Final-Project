@@ -12,7 +12,7 @@ void rightISR();
 class Robot {
 
     private:
-        static int defaultEndcon();
+        int defaultEndcon();
 
         const int enableFR = 11, enableFL = 12, enableBR = 9, enableBL = 10;
         const int in1FR = 30, in2FR = 31, in1FL = 32, in2FL = 33, in1BR = 36, in2BR = 37, in1BL = 38, in2BL = 39;
@@ -74,14 +74,16 @@ class Robot {
         int measureLine();
         void measureSpeed();
         void senseColor();
+        int *readColors();
+        int colorDetect();
 
         int measuredvFwd = 0, measuredvHorz = 0, measuredOmega = 0, measuredOppW;
 
         void brake();
         void omni4WD(long vfwd, long vhorz, long Omega, long omegaOpposing = 0);
         void move3DOF_nofdbk(long ydist, long xdist, long rotation, long speed = defaultSpeed, long omega = defaultOmega);
-        void move3DOF(long ydist, long xdist, long rotation, int (*endcon)(void) = defaultEndcon, long speed = defaultSpeed);
-        void move3DOF_heading(long ydist, long xdist, long rotation, int (*endcon)(void) = defaultEndcon, long speed = defaultSpeed);
+        void move3DOF(long ydist, long xdist, long rotation, int (Robot::*endcon)(void) = defaultEndcon, long speed = defaultSpeed);
+        void move3DOF_heading(long ydist, long xdist, long rotation, int (Robot::*endcon)(void) = defaultEndcon, long speed = defaultSpeed);
         void rightTurn(short);
         void leftTurn(short);
         void servoPosition(int);
@@ -96,6 +98,7 @@ class Robot {
 
         // num sensors Black
         unsigned int blackSenses = 0;
+        int scanReadSenses();
 
         // DONT CHANGE THIS ANYMORE
         // baked into a decent amount of the measurement stuff

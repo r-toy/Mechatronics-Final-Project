@@ -35,28 +35,30 @@ void StateMaze2::update(){
 }
 
 void StateMaze2::exit() {
-    short omega = -80, increment = 1;
-    long update2 = 0, lastUpdate2 = micros();
+    // short omega = -80, increment = 1;
+    // long update2 = 0, lastUpdate2 = micros();
     Serial.println("exiting state 2");
-    ctx_->ourRobot->omni4WD(vfwdSetpoint,0,-74);
-    lastUpdate = micros();
-    while (1) {
-        newUpdate = micros();
-        if (newUpdate - lastUpdate > ctx_->ourRobot->timestep) {
-            lastUpdate += ctx_->ourRobot->timestep;
-            update2 = micros();
-            if (update2 - lastUpdate2 > timer) {
-                if (omega == -74)
-                    increment = -1;
-                lastUpdate2 = micros();
-                omega += increment;
-                ctx_->ourRobot->omni4WD(vfwdSetpoint,0,omega);
-            }
-            ctx_->ourRobot->measureLine();
-            if (ctx_->ourRobot->readBlackSenses() != 0)
-                break;
-        }
-    }
+    ctx_->ourRobot->move3DOF_heading(100, 0, 0);
+    ctx_->ourRobot->move3DOF_heading(0, 500, -180, &Robot::scanReadSenses);
+    // ctx_->ourRobot->omni4WD(vfwdSetpoint,0,-74);
+    // lastUpdate = micros();
+    // while (1) {
+    //     newUpdate = micros();
+    //     if (newUpdate - lastUpdate > ctx_->ourRobot->timestep) {
+    //         lastUpdate += ctx_->ourRobot->timestep;
+    //         update2 = micros();
+    //         if (update2 - lastUpdate2 > timer) {
+    //             if (omega == -74)
+    //                 increment = -1;
+    //             lastUpdate2 = micros();
+    //             omega += increment;
+    //             ctx_->ourRobot->omni4WD(vfwdSetpoint,0,omega);
+    //         }
+    //         ctx_->ourRobot->measureLine();
+    //         if (ctx_->ourRobot->readBlackSenses() != 0)
+    //             break;
+    //     }
+    // }
 
 
     return;

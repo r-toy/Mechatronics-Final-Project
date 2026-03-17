@@ -3,14 +3,14 @@
 #include "context.h"
 #include "state.h"
 #include "StateTEST.h"
-#include "StateMaze1.h"
-#include "StateMaze2.h"
+#include "StateColor.h"
+#include "StateBar.h"
 
-void StateMaze1::enter(){
-    Serial.println("entering state 1");
+void StateColor::enter(){
+    Serial.println("entering state Color");
 }
 
-void StateMaze1::update(){
+void StateColor::update(){
     newUpdate = micros();
 
     if( (newUpdate - lastUpdate) > ctx_->ourRobot->timestep){
@@ -24,10 +24,13 @@ void StateMaze1::update(){
         ed = ep - ed;
         currentOmega = ep*kp + ed*kd;
         currentVhorz = ep/8;
-        // Serial.println(currentBalance);
-        // currentSpeed = currentSpeed + (speedSetpoint - ctx_->ourRobot->measSpeed)*kp;
-        if (ctx_->ourRobot->readBlackSenses() == 0) {
-            ctx_->transitionTo(new StateMaze2);
+        // LINE COUNTING
+        if (ctx_->ourRobot->readBlackSenses() > 4) {
+            if (!(--color))
+                ctx_->transitionTo(new StateBar);
+            while (ctx_->ourRobot->scanReadSenses() > 4){
+                delay(5);
+            }
         }
         ctx_->ourRobot->omni4WD(vfwdSetpoint, currentVhorz, currentOmega);
     }
@@ -35,10 +38,9 @@ void StateMaze1::update(){
     //if (ctx_->ourRobot->readPushbutton) ctx_->transitionTo(new StatePivotRight)
 }
 
-void StateMaze1::exit() {
-    Serial.println("exiting state 1");
-    ctx_->ourRobot->move3DOF_heading(100, 0, 0);
-    ctx_->ourRobot->move3DOF_heading(0, -500, 180, &Robot::scanReadSenses);
+void StateColor::exit() {
+    Serial.println("exiting state color");
+    ctx_->ourRobot->move3DOF_heading(40, 0, 0);
     // ctx_->ourRobot->omni4WD(0,0,70);
     // lastUpdate = micros();
     // while (1) {

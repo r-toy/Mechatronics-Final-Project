@@ -3,10 +3,6 @@
 #include "context.h"
 #include "state.h"
 #include "StateButtonRead.h"
-#include "StateRed.h"
-#include "StateGreen.h"
-#include "StateBlue.h"
-#include "StateYellow.h"
 
 float vDistance(const int *one, const int *two){
   int i = 0, dsqr = 0;
@@ -17,20 +13,10 @@ float vDistance(const int *one, const int *two){
 }
 
 void StateButtonRead::enter(){
-    Serial.println("entering state ButtonRead");
-    ctx_->ourRobot->move3DOF_heading(300, 0, 0);
-    ctx_->ourRobot->move3DOF_heading(-20, 25, -45);
-    ctx_->ourRobot->move3DOF_heading(20, 25, -45);
-    // ctx_->ourRobot->omni4WD(vfwdSetpoint, 0, 0);
-    // delay(1750);
-    // ctx_->ourRobot->omni4WD(-vfwdSetpoint, 0, 0);
-    // delay(100);
-    // ctx_->ourRobot->omni4WD(0, 0, -64);
-    // delay(750);
-    // ctx_->ourRobot->omni4WD(vfwdSetpoint, 0, 0);
-    // delay(250);
-    while (ctx_->ourRobot->colorDetect())
-        ctx_->ourRobot->senseColor();
+    Serial.println("entering state Bar");
+    ctx_->ourRobot->move3DOF_heading(0, 400, 0);
+    ctx_->ourRobot->servoPosition(90);
+    ctx_->ourRobot->move3DOF_heading(0, -100, 0);
 
 }
 
@@ -48,10 +34,13 @@ void StateButtonRead::update(){
     if (leastDistance == redSim)
         ctx_->transitionTo(new StateRed);
     else if (leastDistance == greenSim)
+        Serial.println("GREEN");
         ctx_->transitionTo(new StateGreen);
     else if (leastDistance == blueSim)
+        Serial.println("BLUE");
         ctx_->transitionTo(new StateBlue);
     else
+        Serial.println("YELLOW");
         ctx_->transitionTo(new StateYellow);
 
 }
