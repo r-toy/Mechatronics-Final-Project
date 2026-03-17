@@ -145,7 +145,7 @@ int Robot::measureLine() {
 
     blackSenses = 0;
     for (int i = 0; i < SensorCount; i++) {
-        if (sensorValues[i] > 900) {
+        if (sensorValues[i] > blackThreshold) {
             // digitalWrite(LEDbase+i,LOW);
             blackSenses++;
         }
@@ -563,6 +563,7 @@ void Robot::move3DOF_heading(long ydist, long xdist, long rotation, int (Robot::
             iHorz = curCos*(ei_x*ki)/8192 + curSin*(ei_y*ki)/8192;
             iFwd = -curSin*(ei_x*ki)/8192 + curCos*(ei_y*ki)/8192;
 
+            // Serial.print("vfwd pos error = "); Serial.println(iFwd);
             omni4WD(vFwd + iFwd,vHorz + iHorz,omega + (ei_omega*ki_omega/128),omegaOpp);
             // Serial.println("timestamp check");
         }

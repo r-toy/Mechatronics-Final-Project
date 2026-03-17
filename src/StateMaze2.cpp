@@ -28,7 +28,7 @@ void StateMaze2::update(){
         if (ctx_->ourRobot->readBlackSenses() == 0) {
             ctx_->transitionTo(new StateMaze3);
         }
-        ctx_->ourRobot->omni4WD(vfwdSetpoint, currentVhorz, currentOmega);
+        ctx_->ourRobot->omni4WD(maze2vFwd, currentVhorz, currentOmega);
     }
 
     //if (ctx_->ourRobot->readPushbutton) ctx_->transitionTo(new StatePivotRight)
@@ -40,6 +40,9 @@ void StateMaze2::exit() {
     Serial.println("exiting state 2");
     ctx_->ourRobot->move3DOF_heading(225, 0, 0);
     ctx_->ourRobot->move3DOF_heading(-50, 500, 180, &Robot::scanReadSenses);
+    if(ctx_->ourRobot->scanReadSenses() == 0){
+        ctx_->ourRobot->move3DOF_heading(100, 0, 0, &Robot::scanReadSenses);
+    } 
     // ctx_->ourRobot->omni4WD(vfwdSetpoint,0,-74);
     // lastUpdate = micros();
     // while (1) {

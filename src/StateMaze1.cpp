@@ -38,6 +38,7 @@ void StateMaze1::update(){
 void StateMaze1::exit() {
     Serial.println("exiting state 1");
     ctx_->ourRobot->move3DOF_heading(275, 0, 90);
+    delay(125);
     ctx_->ourRobot->move3DOF_heading(500, 0, 90, &Robot::scanReadSenses);
     // ctx_->ourRobot->omni4WD(0,0,70);
     // lastUpdate = micros();

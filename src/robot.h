@@ -38,6 +38,7 @@ class Robot {
         unsigned short sensorMin[SensorCount];
         unsigned short sensorAvg[SensorCount];
         unsigned short sensorPos;
+        const unsigned int blackThreshold = 900;
 
         Servo armServo;
         unsigned short servoPin = 4;
@@ -49,7 +50,7 @@ class Robot {
 
         // default speed to use for move3DOF
         static const int defaultSpeed = 100;
-        static const int defaultOmega = 24;
+        static const int defaultOmega = 20;
 
         // 3DOF control gains
         // in order: 

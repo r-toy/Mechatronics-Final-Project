@@ -3,6 +3,7 @@
 #include "StateTEST.h"
 #include "StateMaze1.h"
 #include "StateMaze3.h"
+#include "StateButtonRead.h"
 #include "context.h"
 #include "robot.h"
 
@@ -11,14 +12,18 @@ void StateInit::enter() {
     while (ctx_->ourRobot->pushbuttonRead() == 0){
         // wait for button
     }
+    // ctx_->transitionTo(new StateButtonRead);
+    //*
     ctx_->ourRobot->calibrateLineSensor();
     delay(125);
     ctx_->ourRobot->move3DOF_heading(-100,0,-90);
+    ctx_->ourRobot->brake();
     delay(125);
     ctx_->ourRobot->calibrateLineSensor();
     delay(125);
-    ctx_->ourRobot->move3DOF_heading(-15,0,-90);
-
+    ctx_->ourRobot->move3DOF_heading(0,0,-90,&Robot::scanReadSenses);
+    ctx_->transitionTo(new StateMaze1);
+    //*/
 }
 
 void StateInit::update() {
