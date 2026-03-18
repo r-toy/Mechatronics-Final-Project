@@ -28,7 +28,7 @@ class Robot {
         // long rotPermm = 24; // 16,384ths of a rotation (or sixteenth of wolfeians) rotated per mm moved on average by wheels
         long rotPermm = 47; // the experimentally found version of rotPermm (also twice for some reason (?) )
 
-        Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_1X);
+        Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_24MS, TCS34725_GAIN_16X);
         unsigned short r, g, b, c, colorTemp, lux;
         QTRSensors qtr;
         static const unsigned char SensorCount = 8;
@@ -73,7 +73,7 @@ class Robot {
         int measureLine();
         void measureSpeed();
         void senseColor();
-        long *readColors();
+        void readColors(unsigned short colors[4]);
         int colorDetect();
 
         int measuredvFwd = 0, measuredvHorz = 0, measuredOmega = 0, measuredOppW;

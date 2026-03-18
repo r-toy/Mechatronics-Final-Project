@@ -14,7 +14,8 @@ void StateInit::enter() {
         // wait for button
     }
     // ctx_->transitionTo(new StateButtonRead);
-    /*
+    // ctx_->transitionTo(new StateButtonRead);
+    //*
     ctx_->ourRobot->calibrateLineSensor();
     delay(125);
     ctx_->ourRobot->move3DOF_heading(-100,0,-90);

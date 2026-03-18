@@ -8,6 +8,11 @@ class StateButtonRead : public StateLineFollow {
     private:
         float cosineSim(int *one, int *two);
 
+        const int redRef[4] = {0,0,0,0};
+        const int greenRef[4] = {0,0,0,0};
+        const int blueRef[4] = {0,0,0,0};
+        const int yellowRef[4] = {0,0,0,0};
+
         unsigned int distance = 0;
         int redAvg[3] = {1620, 940, 827};
         int redAvg2[3] = {1059, 208, 180};
