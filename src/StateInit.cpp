@@ -6,6 +6,7 @@
 #include "StateButtonRead.h"
 #include "context.h"
 #include "robot.h"
+#include "StateBar.h"
 
 void StateInit::enter() {
     // calibrate line sensor
@@ -13,7 +14,7 @@ void StateInit::enter() {
         // wait for button
     }
     // ctx_->transitionTo(new StateButtonRead);
-    //*
+    /*
     ctx_->ourRobot->calibrateLineSensor();
     delay(125);
     ctx_->ourRobot->move3DOF_heading(-100,0,-90);
@@ -22,8 +23,8 @@ void StateInit::enter() {
     ctx_->ourRobot->calibrateLineSensor();
     delay(125);
     ctx_->ourRobot->move3DOF_heading(0,0,-90,&Robot::scanReadSenses);
-    ctx_->transitionTo(new StateMaze1);
     //*/
+    ctx_->transitionTo(new StateButtonRead);
 }
 
 void StateInit::update() {

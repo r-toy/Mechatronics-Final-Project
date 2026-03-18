@@ -3,14 +3,10 @@
 #include "context.h"
 #include "state.h"
 #include "StateTEST.h"
-#include "StateColor.h"
-#include "StateBar.h"
+#include "StateRedReverse.h"
+#include "StateButtonRead.h"
 
-void StateColor::enter(){
-    Serial.println("entering state Color");
-}
-
-void StateColor::update(){
+void StateRedReverse::update(){
     newUpdate = micros();
 
     if( (newUpdate - lastUpdate) > ctx_->ourRobot->timestep){
@@ -27,7 +23,7 @@ void StateColor::update(){
         // LINE COUNTING
         if (ctx_->ourRobot->readBlackSenses() > 4) {
             if (!(--color))
-                ctx_->transitionTo(new StateBar);
+                ctx_->transitionTo(new StateButtonRead);
             while (ctx_->ourRobot->scanReadSenses() > 4){
                 delay(5);
             }
@@ -38,9 +34,6 @@ void StateColor::update(){
     //if (ctx_->ourRobot->readPushbutton) ctx_->transitionTo(new StatePivotRight)
 }
 
-void StateColor::exit() {
-    Serial.println("exiting state color");
-    ctx_->ourRobot->move3DOF_heading(40, 0, 0);
-
-    return;
+void StateRedReverse::exit() {
+    ctx_->ourRobot->move3DOF_heading(20, 0, -90);
 }

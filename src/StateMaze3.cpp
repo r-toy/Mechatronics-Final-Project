@@ -32,7 +32,7 @@ void StateMaze3::update(){
         int isthebuttonpushed = ctx_->ourRobot->pushbuttonRead();
         if ((maxSenses > 4) || isthebuttonpushed) {
             Serial.print("max senses = "); Serial.println(maxSenses);
-            ctx_->transitionTo(new StateButtonRead);
+            ctx_->transitionTo(new StateTEST);
         }
         ctx_->ourRobot->omni4WD(maze3vFwd, currentVhorz, currentOmega);
     }

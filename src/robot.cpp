@@ -36,7 +36,7 @@ Robot::Robot() {
     qtr.setEmitterPin(EmitterPin);
 
     armServo.attach(servoPin);
-    armServo.write(90);
+    armServo.write(180);
 
     pinMode(LED_BUILTIN, OUTPUT);
     pinMode(pushbutton,INPUT_PULLUP);
@@ -496,12 +496,18 @@ void Robot::move3DOF_heading(long ydist, long xdist, long rotation, int (Robot::
 
             if(ABS(measy) > ABS(ydist) + 100){
                 vy_des = 0;
+                ep_y = 0;
+                vy = 0;
             }
             if(ABS(measx) > ABS(xdist) + 100){
                 vx_des = 0;
+                ep_x = 0;
+                vx = 0;
             }
             if(ABS(measrot) > ABS(rotation) + 128){
                 omega_des = 0;
+                ep_omega = 0;
+                omega = 0;
             }
 
             ed_y = ep_y;
@@ -551,7 +557,7 @@ void Robot::move3DOF_heading(long ydist, long xdist, long rotation, int (Robot::
             omega += (ep_omega*kp_omega + ed_omega*kd_omega) / 2048;
             omegaOpp += (ep_omegaOpp*kp_omegaOpp + ed_omegaOpp*kd_omegaOpp) / 2048;
 
-            // Serial.print("measured rot = "); Serial.println(measrot);
+            Serial.print("measured rot = "); Serial.println(measrot);
             // Serial.print("ei omega = "); Serial.println(ei_omega);
 
             // need to account for rotation
@@ -602,7 +608,7 @@ int Robot::readBlackSenses() {
 int Robot::scanReadSenses() {
     // combines measureLine with readBlackSenses
     measureLine();
-    return readBlackSenses();
+    return blackSenses;
 }
 
 void Robot::senseColor() {
@@ -614,9 +620,9 @@ void Robot::senseColor() {
     return;
 }
 
-const int *Robot::readColors() {
+long *Robot::readColors() {
     // returns colors as an rgb array
-    const int colors[3] = {r, g, b};
+    long colors[3] = {r, g, b};
     return colors;
 }
 

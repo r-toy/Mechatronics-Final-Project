@@ -5,7 +5,7 @@
 #include "StateLineFollow.h"
 
 class StateBar : public StateLineFollow {
-    private:
+    protected:
         unsigned int distance = 0;
 
     public:

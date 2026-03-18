@@ -38,8 +38,8 @@ void StateMaze2::exit() {
     // short omega = -80, increment = 1;
     // long update2 = 0, lastUpdate2 = micros();
     Serial.println("exiting state 2");
-    ctx_->ourRobot->move3DOF_heading(225, 0, 0);
-    ctx_->ourRobot->move3DOF_heading(-50, 500, 180, &Robot::scanReadSenses);
+    ctx_->ourRobot->move3DOF_heading(200, 0, 0);
+    ctx_->ourRobot->move3DOF_heading(-100, 500, 180, &Robot::scanReadSenses);
     if(ctx_->ourRobot->scanReadSenses() == 0){
         ctx_->ourRobot->move3DOF_heading(100, 0, 0, &Robot::scanReadSenses);
     } 

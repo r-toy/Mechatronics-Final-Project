@@ -7,6 +7,8 @@ class StateYellow : public StateColor {
     protected:
         unsigned int color = 1;
 
+    public:
+        void update() override;
 };
 
 #endif

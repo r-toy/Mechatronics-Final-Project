@@ -9,52 +9,45 @@
 #include "StateGreen.h"
 #include "StateRed.h"
 #include "StateYellow.h"
+#include "StateTEST.h"
 
 void StateBar::enter(){
     Serial.println("entering state Bar");
-    ctx_->ourRobot->servoPosition(180);
-    ctx_->ourRobot->move3DOF_heading(0, 400, 0);
+    // ctx_->ourRobot->servoPosition(180);
+    // ctx_->ourRobot->move3DOF_heading(0, 400, 0);
     ctx_->ourRobot->servoPosition(90);
-    ctx_->ourRobot->move3DOF_heading(0, -100, 0);
+    delay(100);
+    int mill = millis();
+    ctx_->ourRobot->omni4WD(0, 255, 0);
+    while(millis() - mill < 500){
+
+    }
+    ctx_->ourRobot->brake();
+
 
 }
 
 void StateBar::update(){
-    /*
-    // ctx_->transitionTo(new StateHorizontalLine);
-    const int *colors = ctx_->ourRobot->readColors();
-    float redSim = vDistance(colors, redAvg2);
-    float greenSim = vDistance(colors, greenAvg2);
-    float blueSim = vDistance(colors, blueAvg2);
-    float yellowSim = vDistance(colors, yellowAvg);
-    // float blackSim = vDistance(colors, blackAvg);
-    // float whiteSim = vDistance(colors, whiteAvg);
-    float leastDistance = min(min(redSim,yellowSim),min(blueSim, greenSim));
-
-    if (leastDistance == redSim)
-        ctx_->transitionTo(new StateRed);
-    else if (leastDistance == greenSim)
-        ctx_->transitionTo(new StateGreen);
-    else if (leastDistance == blueSim)
-        ctx_->transitionTo(new StateBlue);
-    else
-        ctx_->transitionTo(new StateYellow);
-    //*/
+    // if (!ctx_->ourRobot->colorDetect())
+    delay(1000);
+    ctx_->transitionTo(new StateTEST);
 }
 
 void StateBar::exit() {
-    Serial.println("exiting state ButtonRead");
-    ctx_->ourRobot->omni4WD(0, 150, 0);
+    Serial.println("exiting state Bar");
+    int mill = millis();
+    ctx_->ourRobot->omni4WD(0, -255, 0);
+    while(millis() - mill < 500){
 
-    long newUpdate, lastUpdate = micros();
-    while (1) {
-        newUpdate = micros();
-        if (newUpdate - lastUpdate > ctx_->ourRobot->timestep) {
-            ctx_->ourRobot->measureLine();
-            if (ctx_->ourRobot->readBlackSenses() == 0)
-                break;
-        }
     }
+    ctx_->ourRobot->brake();
+
+    ctx_->ourRobot->servoPosition(135);
+    delay(1000);
+    ctx_->ourRobot->move3DOF_heading(0, 100, 180);
+    ctx_->ourRobot->move3DOF_heading(0, -500, 0, &Robot::scanReadSenses);
+
+    ctx_->ourRobot->servoPosition(180);
 
     return;
 }
