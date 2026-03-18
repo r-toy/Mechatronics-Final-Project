@@ -23,7 +23,6 @@ void isrBRDistance();
 Robot::Robot() {
     Serial.begin(9600);
 
-    Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_614MS, TCS34725_GAIN_1X);
     if (tcs.begin()) {
         Serial.println("Found sensor");
     } else {
@@ -36,7 +35,7 @@ Robot::Robot() {
     qtr.setEmitterPin(EmitterPin);
 
     armServo.attach(servoPin);
-    armServo.write(90);
+    armServo.write(180);
 
     pinMode(LED_BUILTIN, OUTPUT);
     pinMode(pushbutton,INPUT_PULLUP);
@@ -564,7 +563,7 @@ void Robot::move3DOF_heading(long ydist, long xdist, long rotation, int (Robot::
             iFwd = -curSin*(ei_x*ki)/8192 + curCos*(ei_y*ki)/8192;
 
             // Serial.print("vfwd pos error = "); Serial.println(iFwd);
-            omni4WD(vFwd + iFwd,vHorz + iHorz,omega + (ei_omega*ki_omega/128),omegaOpp);
+            omni4WD(vFwd + iFwd,vHorz + iHorz,omega + (ei_omega*ki_omega/512),omegaOpp);
             // Serial.println("timestamp check");
         }
     }
@@ -614,10 +613,13 @@ void Robot::senseColor() {
     return;
 }
 
-const int *Robot::readColors() {
+void Robot::readColors(unsigned short *colors) {
     // returns colors as an rgb array
-    const int colors[3] = {r, g, b};
-    return colors;
+    colors[0] = r;
+    colors[1] = g;
+    colors[2] = b;
+    colors[4] = c;
+    return;
 }
 
 int Robot::colorDetect() {

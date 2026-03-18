@@ -13,6 +13,7 @@ void StateInit::enter() {
         // wait for button
     }
     // ctx_->transitionTo(new StateButtonRead);
+    // ctx_->transitionTo(new StateButtonRead);
     //*
     ctx_->ourRobot->calibrateLineSensor();
     delay(125);

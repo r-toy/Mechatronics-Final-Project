@@ -8,6 +8,11 @@ class StateButtonRead : public StateLineFollow {
     private:
         float vDistance(const int *one, const int *two);
 
+        const int redRef[4] = {0,0,0,0};
+        const int greenRef[4] = {0,0,0,0};
+        const int blueRef[4] = {0,0,0,0};
+        const int yellowRef[4] = {0,0,0,0};
+
         unsigned int distance = 0;
         const int redAvg[3] = {1620, 940, 827};
         const int redAvg2[3] = {1059, 208, 180};
