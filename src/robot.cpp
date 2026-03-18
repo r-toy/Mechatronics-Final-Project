@@ -481,7 +481,7 @@ void Robot::move3DOF_heading(long ydist, long xdist, long rotation, int (Robot::
     unsigned long newUpdate, lastUpdate = micros();
 
     // Serial.print("condition = "); Serial.println(sq(dist) - sq(measx) - sq(measy));
-    while( ((sq(dist) - sq(measx) - sq(measy)) > 10000) || ((ABS(rotation - measrot)) > 128) ){
+    while( ((sq(dist) - sq(measx) - sq(measy)) > 10000) || ((ABS(rotation - measrot)) > 256) ){
         newUpdate = micros();
 
         if((this->*endcon)() != 0){
@@ -556,7 +556,7 @@ void Robot::move3DOF_heading(long ydist, long xdist, long rotation, int (Robot::
             omega += (ep_omega*kp_omega + ed_omega*kd_omega) / 2048;
             omegaOpp += (ep_omegaOpp*kp_omegaOpp + ed_omegaOpp*kd_omegaOpp) / 2048;
 
-            Serial.print("measured rot = "); Serial.println(measrot);
+            // Serial.print("measured rot = "); Serial.println(measrot);
             // Serial.print("ei omega = "); Serial.println(ei_omega);
 
             // need to account for rotation

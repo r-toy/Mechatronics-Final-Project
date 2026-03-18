@@ -26,10 +26,10 @@ void StateColor::update(){
         currentVhorz = ep/8;
         // LINE COUNTING
         if (ctx_->ourRobot->readBlackSenses() > 4) {
-            if (!(--color))
+            if ((--color) == 0)
                 ctx_->transitionTo(new StateBar);
             while (ctx_->ourRobot->scanReadSenses() > 4){
-                delay(5);
+
             }
         }
         ctx_->ourRobot->omni4WD(vfwdSetpoint, currentVhorz, currentOmega);

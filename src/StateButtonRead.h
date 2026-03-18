@@ -2,16 +2,26 @@
 #define STATEBUTTONREAD_H
 
 #include "state.h"
+#include <math.h>
 #include "StateLineFollow.h"
 
 class StateButtonRead : public StateLineFollow {
     private:
-        float cosineSim(int *one, int *two);
+        int cosineSim(int *one, int *two);
 
-        const int redRef[4] = {0,0,0,0};
-        const int greenRef[4] = {0,0,0,0};
-        const int blueRef[4] = {0,0,0,0};
-        const int yellowRef[4] = {0,0,0,0};
+        const int redRef[4] = {898,166,132,798};
+
+        double redMagnitude256 = sqrt((double)(redRef[0]*redRef[0] + redRef[1]*redRef[1] + redRef[2]*redRef[2] + redRef[3]*redRef[3]));
+        int redRef2[4] = {redRef[0] * 256 / redMagnitude256, redRef[1] * 256 / redMagnitude256, redRef[2] * 256 / redMagnitude256, redRef[3] * 256 / redMagnitude256};
+        const int greenRef[4] = {272,562,230,540};
+        double greenMagnitude256 = sqrt((double)(greenRef[0]*greenRef[0] + greenRef[1]*greenRef[1] + greenRef[2]*greenRef[2] + greenRef[3]*greenRef[3]));
+        int greenRef2[4] = {greenRef[0] * 256 / greenMagnitude256, greenRef[1] * 256 / greenMagnitude256, greenRef[2] * 256 / greenMagnitude256, greenRef[3] * 256 / greenMagnitude256};
+        const int blueRef[4] = {231,316,668,798};
+        double blueMagnitude256 = sqrt((double)(blueRef[0]*blueRef[0] + blueRef[1]*blueRef[1] + blueRef[2]*blueRef[2] + blueRef[3]*blueRef[3]));
+        int blueRef2[4] = {blueRef[0] * 256 / blueMagnitude256, blueRef[1] * 256 / blueMagnitude256, blueRef[2] * 256 / blueMagnitude256, blueRef[3] * 256 / blueMagnitude256};
+        const int yellowRef[4] = {271,237,108,798};
+        double yellowMagnitude256 = sqrt((double)(yellowRef[0]*yellowRef[0] + yellowRef[1]*yellowRef[1] + yellowRef[2]*yellowRef[2] + yellowRef[3]*yellowRef[3]));
+        int yellowRef2[4] = {yellowRef[0] * 256 / yellowMagnitude256, yellowRef[1] * 256 / yellowMagnitude256, yellowRef[2] * 256 / yellowMagnitude256, yellowRef[3] * 256 / yellowMagnitude256};
 
         unsigned int distance = 0;
         int redAvg[3] = {1620, 940, 827};

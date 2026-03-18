@@ -9,23 +9,19 @@
 #include "StateBlue.h"
 #include "StateYellow.h"
 
-float StateButtonRead::cosineSim(int *one, int *two){
+int StateButtonRead::cosineSim(int *one, int *two){
   int dot = 0;
-  double magOne = 0, magTwo = 0;
+
   for (int i = 0; i < 3; i++) {
     dot += one[i]*two[i];
-    magOne += one[i]*one[i];
-    magTwo += two[i]*two[i];
   }
-  magOne = sqrt(magOne);
-  magTwo = sqrt(magTwo);
-  return dot / (magOne * magTwo);
+  return dot;
 }
 
 
 void StateButtonRead::enter(){
     Serial.println("entering state ButtonRead");
-    ctx_->ourRobot->move3DOF_heading(300, 0, 0, &Robot::defaultEndcon, 255);
+    ctx_->ourRobot->move3DOF_heading(320, 0, 0, &Robot::defaultEndcon, 255);
     delay(125);
     Serial.println("button pressed");
 
@@ -53,9 +49,9 @@ void StateButtonRead::enter(){
     ctx_->ourRobot->brake();
     delay(125);
 
-    ctx_->ourRobot->move3DOF_heading(0, 500, -90);
+    ctx_->ourRobot->move3DOF_heading(0, 90, -90);
     delay(125);
-    ctx_->ourRobot->move3DOF_heading(0,-100,0);
+    ctx_->ourRobot->move3DOF_heading(0,-110,0);
     Serial.println("reading lever color");
     delay(125);
     // ctx_->ourRobot->omni4WD(vfwdSetpoint, 0, 0);
@@ -66,6 +62,27 @@ void StateButtonRead::enter(){
     // delay(750);
     // ctx_->ourRobot->omni4WD(vfwdSetpoint, 0, 0);
     // delay(250);
+    // while (1) {
+    //     unsigned short colors[4];
+    //     unsigned short red = 0, green = 0, blue = 0, clear = 0;
+    //     ctx_->ourRobot->senseColor();
+    //     ctx_->ourRobot->readColors(colors);
+    //     for (int i = 0; i < 64; i++){
+    //         red += colors[0];
+    //         green += colors[1];
+    //         blue += colors[2];
+    //         clear += colors[3];
+    //     }
+    //     Serial.print("red: "); Serial.print(red/64);
+    //     Serial.print(" green: "); Serial.print(green/64);
+    //     Serial.print(" blue: "); Serial.print(blue/64);
+    //     Serial.print(" clear: "); Serial.println(clear/64);
+    //     delay(1000);
+    // }
+}
+
+void StateButtonRead::update(){
+    //*
     unsigned short colors[4];
     unsigned short red = 0, green = 0, blue = 0, clear = 0;
     ctx_->ourRobot->senseColor();
@@ -76,23 +93,17 @@ void StateButtonRead::enter(){
         blue += colors[2];
         clear += colors[3];
     }
-    Serial.print("red: "); Serial.print(red/64);
-    Serial.print(" green: "); Serial.print(green/64);
-    Serial.print(" blue: "); Serial.print(blue/64);
-    Serial.print(" clear: "); Serial.println(clear/64);
-}
+    red /= 64;
+    green /= 64;
+    blue /= 64;
+    clear /= 64;
+    int meas[4] = {red,green,blue,clear};
+    int redSim = cosineSim(meas, redRef2);
+    int greenSim = cosineSim(meas, greenRef2);
+    int blueSim = cosineSim(meas, blueRef2);
+    int yellowSim = cosineSim(meas, yellowRef2);
 
-void StateButtonRead::update(){
-    /*
-    // ctx_->transitionTo(new StateHorizontalLine);
-    int *colors = ctx_->ourRobot->readColors();
-    float redSim = vDistance(colors, redAvg2);
-    float greenSim = vDistance(colors, greenAvg2);
-    float blueSim = vDistance(colors, blueAvg2);
-    float yellowSim = vDistance(colors, yellowAvg);
-    // float blackSim = vDistance(colors, blackAvg);
-    // float whiteSim = vDistance(colors, whiteAvg);
-    // float leastDistance = min(min(redSim,yellowSim),min(blueSim, greenSim));
+    int leastDistance = max(max(redSim,yellowSim),max(blueSim, greenSim));
 
     if (leastDistance == redSim){
         Serial.println("Red");
@@ -115,6 +126,7 @@ void StateButtonRead::update(){
 
 void StateButtonRead::exit() {
     Serial.println("exiting state ButtonRead");
+    ctx_->ourRobot->move3DOF_heading(-100, 50, 0);
     ctx_->ourRobot->omni4WD(0, 150, 0);
 
     lastUpdate = micros();
@@ -122,7 +134,8 @@ void StateButtonRead::exit() {
         newUpdate = micros();
         if (newUpdate - lastUpdate > ctx_->ourRobot->timestep) {
             ctx_->ourRobot->measureLine();
-            if (ctx_->ourRobot->readBlackSenses() == 0)
+            Serial.print("blackSenses"); Serial.println(ctx_->ourRobot->readBlackSenses());
+            if (ctx_->ourRobot->readBlackSenses() != 0)
                 break;
         }
     }

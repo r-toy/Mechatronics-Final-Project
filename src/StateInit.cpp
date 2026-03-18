@@ -24,8 +24,11 @@ void StateInit::enter() {
     ctx_->ourRobot->calibrateLineSensor();
     delay(125);
     ctx_->ourRobot->move3DOF_heading(0,0,-90,&Robot::scanReadSenses);
-    //*/
-    ctx_->transitionTo(new StateButtonRead);
+    //*
+    // while (ctx_->ourRobot->pushbuttonRead() == 0){
+    //     // wait for button
+    // }
+    ctx_->transitionTo(new StateMaze1);
 }
 
 void StateInit::update() {
