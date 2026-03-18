@@ -21,10 +21,12 @@ void StateYellow::update(){
         currentOmega = ep*kp + ed*kd;
         currentVhorz = ep/8;
         // LINE COUNTING
-        if (ctx_->ourRobot->readBlackSenses() > 4) {
+        Serial.print("black: "); Serial.println(ctx_->ourRobot->readBlackSenses());
+        if (ctx_->ourRobot->readBlackSenses() >= 4) {
+            Serial.print("zeros; "); Serial.println(color);
             if (!(--color))
                 ctx_->transitionTo(new StateBarYellow);
-            while (ctx_->ourRobot->scanReadSenses() > 4){
+            while (ctx_->ourRobot->scanReadSenses() >= 4){
                 delay(5);
             }
         }

@@ -18,17 +18,17 @@ void StateInit::enter() {
     //*
     ctx_->ourRobot->calibrateLineSensor();
     delay(125);
-    ctx_->ourRobot->move3DOF_heading(-100,0,-90);
-    ctx_->ourRobot->brake();
+    // ctx_->ourRobot->move3DOF_heading(-100,0,-90);
+    // ctx_->ourRobot->brake();
     delay(125);
     ctx_->ourRobot->calibrateLineSensor();
-    delay(125);
-    ctx_->ourRobot->move3DOF_heading(0,0,-90,&Robot::scanReadSenses);
+    // delay(125);
+    // ctx_->ourRobot->move3DOF_heading(0,0,-90,&Robot::scanReadSenses);
     //*
-    // while (ctx_->ourRobot->pushbuttonRead() == 0){
-    //     // wait for button
-    // }
-    ctx_->transitionTo(new StateMaze1);
+    while (ctx_->ourRobot->pushbuttonRead() == 0){
+        // wait for button
+    }
+    ctx_->transitionTo(new StateMaze3);
 }
 
 void StateInit::update() {

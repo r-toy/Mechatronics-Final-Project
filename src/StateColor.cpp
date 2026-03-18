@@ -25,10 +25,11 @@ void StateColor::update(){
         currentOmega = ep*kp + ed*kd;
         currentVhorz = ep/8;
         // LINE COUNTING
-        if (ctx_->ourRobot->readBlackSenses() > 4) {
+        if (ctx_->ourRobot->readBlackSenses() >= 4) {
+            Serial.print("zeros; "); Serial.println(color);
             if ((--color) == 0)
                 ctx_->transitionTo(new StateBar);
-            while (ctx_->ourRobot->scanReadSenses() > 4){
+            while (ctx_->ourRobot->scanReadSenses() >= 4){
 
             }
         }
@@ -40,7 +41,6 @@ void StateColor::update(){
 
 void StateColor::exit() {
     Serial.println("exiting state color");
-    ctx_->ourRobot->move3DOF_heading(40, 0, 0);
-
+    ctx_->ourRobot->move3DOF_heading(55, 0, 0);
     return;
 }

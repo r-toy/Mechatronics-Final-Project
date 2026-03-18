@@ -5,7 +5,7 @@
 #include "StateLineFollow.h"
 
 class StateColor : public StateLineFollow {
-    private:
+    protected:
         unsigned int distance = 0;
         unsigned int color = 1;
 

@@ -22,7 +22,7 @@ void StateMaze2::update(){
         ep = ctx_->ourRobot->measureLine();
         ed = ep - ed;
         currentOmega = ep*kp + ed*kd;
-        currentVhorz = ep/2;
+        currentVhorz = ep/8;
         // Serial.println(currentBalance);
         // currentSpeed = currentSpeed + (speedSetpoint - ctx_->ourRobot->measSpeed)*kp;
         if (ctx_->ourRobot->readBlackSenses() == 0) {
