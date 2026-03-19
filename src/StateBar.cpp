@@ -46,7 +46,7 @@ void StateBar::update(){
     Serial.print(" clear: "); Serial.println(clear/64);
     delay(1000);
     if (ctx_->ourRobot->pushbuttonRead() == 1)
-        ctx_->transitionTo(new StateTEST);
+        ctx_->transitionTo(new StateReverse);
 }
 
 void StateBar::exit() {
