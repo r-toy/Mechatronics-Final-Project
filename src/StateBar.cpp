@@ -3,13 +3,8 @@
 #include "context.h"
 #include "mymacros.h"
 #include "state.h"
-#include "StateButtonRead.h"
 #include "StateBar.h"
-#include "StateBlue.h"
-#include "StateGreen.h"
-#include "StateRed.h"
-#include "StateYellow.h"
-#include "StateTEST.h"
+#include "StateReverse.h"
 
 void StateBar::enter(){
     Serial.println("entering state Bar");
@@ -23,14 +18,12 @@ void StateBar::enter(){
 
     }
     ctx_->ourRobot->brake();
-
-
 }
 
 void StateBar::update(){
     // if (!ctx_->ourRobot->colorDetect())
     delay(1000);
-    ctx_->transitionTo(new StateTEST);
+    ctx_->transitionTo(new StateReverse);
 }
 
 void StateBar::exit() {

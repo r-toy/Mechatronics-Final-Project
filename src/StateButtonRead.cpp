@@ -107,20 +107,26 @@ void StateButtonRead::update(){
 
     if (leastDistance == redSim){
         Serial.println("Red");
-        ctx_->transitionTo(new StateRed);
-    }
-    else if (leastDistance == greenSim){
-        Serial.println("Green");
-        ctx_->transitionTo(new StateGreen);
+        ctx_->color = 3;
+        // ctx_->transitionTo(new StateRed);
     }
     else if (leastDistance == blueSim){
         Serial.println("Blue");
-        ctx_->transitionTo(new StateBlue);
+        ctx_->color = 2;
+        // ctx_->transitionTo(new StateRed);
+    }
+    // either green or yellow
+    else if (blueSim > redSim){
+        Serial.println("Green");
+        ctx_->color = 4;
+        // ctx_->transitionTo(new StateGreen);
     }
     else {
         Serial.println("Yellow");
-        ctx_->transitionTo(new StateYellow);
+        ctx_->color = 1;
+        // ctx_->transitionTo(new StateYellow);
     }
+    ctx_->transitionTo(new StateColor);
     //*/
 }
 

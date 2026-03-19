@@ -16,6 +16,9 @@ class Context {
         void update();
 
         Robot* ourRobot;
+
+        // 1 = yellow, 2 = blue, 3 = red, 4 = green
+        int color = 0;
 };
 
 #endif

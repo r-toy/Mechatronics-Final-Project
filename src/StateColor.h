@@ -7,7 +7,7 @@
 class StateColor : public StateLineFollow {
     private:
         unsigned int distance = 0;
-        unsigned int color = 1;
+        unsigned int color = 0;
 
     public:
         void enter() override;
