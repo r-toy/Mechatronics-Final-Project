@@ -9,8 +9,8 @@
 #include "StateBlue.h"
 #include "StateYellow.h"
 
-int StateButtonRead::cosineSim(int *one, int *two){
-  int dot = 0;
+long StateButtonRead::cosineSim(long *one, long *two){
+  long dot = 0;
 
   for (int i = 0; i < 3; i++) {
     dot += one[i]*two[i];
@@ -49,9 +49,9 @@ void StateButtonRead::enter(){
     ctx_->ourRobot->brake();
     delay(125);
 
-    ctx_->ourRobot->move3DOF_heading(0, 90, -90);
+    ctx_->ourRobot->move3DOF_heading(0, 110, -90);
     delay(125);
-    ctx_->ourRobot->move3DOF_heading(0,-110,0);
+    ctx_->ourRobot->move3DOF_heading(0,-50,0);
     Serial.println("reading lever color");
     delay(125);
     // ctx_->ourRobot->omni4WD(vfwdSetpoint, 0, 0);
@@ -97,13 +97,14 @@ void StateButtonRead::update(){
     green /= 64;
     blue /= 64;
     clear /= 64;
-    int meas[4] = {red,green,blue,clear};
-    int redSim = cosineSim(meas, redRef2);
-    int greenSim = cosineSim(meas, greenRef2);
-    int blueSim = cosineSim(meas, blueRef2);
-    int yellowSim = cosineSim(meas, yellowRef2);
+    long meas[4] = {red,green,blue,clear};
+    long redSim = cosineSim(meas, redRef2);
+    long greenSim = cosineSim(meas, greenRef2);
+    long blueSim = cosineSim(meas, blueRef2);
+    long yellowSim = cosineSim(meas, yellowRef2);
 
-    int leastDistance = max(max(redSim,yellowSim),max(blueSim, greenSim));
+    long leastDistance = max(max(redSim,yellowSim),max(blueSim, greenSim));
+    Serial.print(meas[0]); Serial.print(" "); Serial.print(meas[1]); Serial.print(" "); Serial.println(meas[2]);
 
     if (leastDistance == redSim){
         Serial.println("Red");
@@ -140,7 +141,7 @@ void StateButtonRead::exit() {
         newUpdate = micros();
         if (newUpdate - lastUpdate > ctx_->ourRobot->timestep) {
             ctx_->ourRobot->measureLine();
-            Serial.print("blackSenses"); Serial.println(ctx_->ourRobot->readBlackSenses());
+            // Serial.print("blackSenses"); Serial.println(ctx_->ourRobot->readBlackSenses());
             if (ctx_->ourRobot->readBlackSenses() != 0)
                 break;
         }

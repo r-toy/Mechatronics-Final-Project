@@ -9,8 +9,10 @@
 #include "StateGreen.h"
 #include "StateRed.h"
 #include "StateYellow.h"
+#include "StateTEST.h"
 
 void StateBarBlue::update(){
-    if (!ctx_->ourRobot->colorDetect())
-        ctx_->transitionTo(new StateBlueReverse);
+    // if (!ctx_->ourRobot->colorDetect())
+    //     ctx_->transitionTo(new StateBlueReverse);
+    ctx_->transitionTo(new StateTEST);
 }

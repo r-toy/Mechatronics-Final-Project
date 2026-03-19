@@ -21,10 +21,10 @@ void StateRedReverse::update(){
         currentOmega = ep*kp + ed*kd;
         currentVhorz = ep/8;
         // LINE COUNTING
-        if (ctx_->ourRobot->readBlackSenses() > 4) {
+        if (ctx_->ourRobot->readBlackSenses() >= 4) {
             if (!(--color))
                 ctx_->transitionTo(new StateButtonRead);
-            while (ctx_->ourRobot->scanReadSenses() > 4){
+            while (ctx_->ourRobot->scanReadSenses() >= 4){
                 delay(5);
             }
         }

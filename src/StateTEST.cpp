@@ -6,9 +6,9 @@
 
 void StateTEST::enter() {
     Serial.println("entering state test");
-    lastUpdate = micros();
-    startTime = lastUpdate;
-    ctx_->ourRobot->brake();
+    // lastUpdate = micros();
+    // startTime = lastUpdate;
+    // ctx_->ourRobot->brake();
     // ctx_->ourRobot->move3DOF_nofdbk(0,0,90);    
     // ctx_->ourRobot->move3DOF_heading(-100,0,-90);
     // delay(125);
@@ -17,7 +17,31 @@ void StateTEST::enter() {
 }
 
 void StateTEST::update() {
-    ctx_->ourRobot->brake();
+    // ctx_->ourRobot->brake();
+    unsigned short colors[4];
+    unsigned short red = 0, green = 0, blue = 0, clear = 0;
+    ctx_->ourRobot->senseColor();
+    ctx_->ourRobot->readColors(colors);
+    for (int i = 0; i < 64; i++){
+        red += colors[0];
+        green += colors[1];
+        blue += colors[2];
+        clear += colors[3];
+    }
+    Serial.print("red: "); Serial.print(red/64);
+    Serial.print(" green: "); Serial.print(green/64);
+    Serial.print(" blue: "); Serial.print(blue/64);
+    Serial.print(" clear: "); Serial.println(clear/64);
+    delay(1000);
+    // ctx_->ourRobot->servoPosition(90);
+    // delay(500);
+    // ctx_->ourRobot->servoPosition(0);
+    // delay(500);
+    // ctx_->ourRobot->servoPosition(180);
+    // delay(500);
+
+
+
     // Calibration for measureSpeed()
     /*
     newUpdate = micros();
