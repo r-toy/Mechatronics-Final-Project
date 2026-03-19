@@ -15,7 +15,6 @@ void StateLineFollow::update(){
         lastUpdate += ctx_->ourRobot->timestep;
 
         // control loop update
-        ctx_->ourRobot->measureSpeed();
         // ep = ctx_->ourRobot->measBalance + ctx_->ourRobot->measureLine();
         ed = ep;
         ep = ctx_->ourRobot->measureLine();

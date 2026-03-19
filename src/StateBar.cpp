@@ -3,12 +3,8 @@
 #include "context.h"
 #include "mymacros.h"
 #include "state.h"
-#include "StateButtonRead.h"
 #include "StateBar.h"
-#include "StateBlue.h"
-#include "StateGreen.h"
-#include "StateRed.h"
-#include "StateYellow.h"
+#include "StateReverse.h"
 #include "StateTEST.h"
 
 void StateBar::enter(){
