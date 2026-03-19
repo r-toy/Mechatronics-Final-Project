@@ -19,7 +19,8 @@ class Context {
 
         // 1 = yellow, 2 = blue, 3 = red, 4 = green
         int color = 0;
-        unsigned long globalTime = millis();
+        unsigned long globalTime;
+        unsigned long timeLimit = 180000; //milliseconds
         // game over if millis() - globalTime > 180 000 ms
 };
 

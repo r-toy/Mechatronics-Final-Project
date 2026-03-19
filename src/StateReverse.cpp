@@ -4,6 +4,7 @@
 #include "state.h"
 #include "StateButtonRead.h"
 #include "StateReverse.h"
+#include "StateDance.h"
 
 void StateReverse::enter(){
     color = ctx_->color;
@@ -26,7 +27,10 @@ void StateReverse::update(){
         // LINE COUNTING
         if (ctx_->ourRobot->readBlackSenses() >= 4) {
             if ((--color) != 0)
-                ctx_->transitionTo(new StateButtonRead);
+                if(millis() - ctx_->globalTime > ctx_->timeLimit)
+                    ctx_->transitionTo(new StateDance);
+                else
+                    ctx_->transitionTo(new StateButtonRead);
             while (ctx_->ourRobot->scanReadSenses() >= 4){
                 delay(5);
             }
@@ -38,5 +42,5 @@ void StateReverse::update(){
 }
 
 void StateReverse::exit() {
-    ctx_->ourRobot->move3DOF_heading(20, 0, -90);
+    ctx_->ourRobot->move3DOF_heading(20, 0, -90,&Robot::scanReadSenses);
 }

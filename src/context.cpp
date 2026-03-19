@@ -4,6 +4,7 @@
 
 // class creator, initialize internal variable as null pointer
 Context::Context(State* initialState, Robot* newRobot) : curState_(nullptr) {
+    globalTime = millis();
     ourRobot = newRobot;
     transitionTo(initialState);
 }

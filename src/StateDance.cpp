@@ -3,6 +3,7 @@
 #include "robot.h"
 
 void StateDance::enter(){
+    ctx_->ourRobot->move3DOF_heading(0,100,-90);
     lastUpdate = micros();
 }
 
