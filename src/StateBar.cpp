@@ -5,6 +5,7 @@
 #include "state.h"
 #include "StateBar.h"
 #include "StateReverse.h"
+#include "StateTEST.h"
 
 void StateBar::enter(){
     Serial.println("entering state Bar");
