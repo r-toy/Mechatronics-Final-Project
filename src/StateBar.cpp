@@ -56,18 +56,18 @@ void StateBar::update(){
 void StateBar::exit() {
     Serial.println("exiting state Bar");
     int mill = millis();
-    ctx_->ourRobot->omni4WD(0, 0, 0);
-    while(millis() - mill < 500){
+    ctx_->ourRobot->omni4WD(0, -255, 0);
+    while(millis() - mill < 250){
 
     }
     ctx_->ourRobot->brake();
 
-    ctx_->ourRobot->servoPosition(90);
-    delay(1000);
-    // ctx_->ourRobot->move3DOF_heading(0, 100, 180);
-    // ctx_->ourRobot->move3DOF_heading(0, -500, 0, &Robot::scanReadSenses);
+    ctx_->ourRobot->servoPosition(135);
+    // delay(1000);
+    ctx_->ourRobot->move3DOF_heading(0, 100, 180);
+    ctx_->ourRobot->move3DOF_heading(0, -500, 0, &Robot::scanReadSenses);
 
-    // ctx_->ourRobot->servoPosition(180);
+    ctx_->ourRobot->servoPosition(180);
 
     return;
 }

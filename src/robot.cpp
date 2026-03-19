@@ -630,7 +630,7 @@ void Robot::readColors(unsigned short *colors) {
 
 int Robot::colorDetect() {
     senseColor();
-    if (lux > 250)
-        return 0;
-    return 1;
+    if ((r+g) >= 600)
+        return 1;
+    return 0;
 }

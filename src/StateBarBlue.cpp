@@ -12,7 +12,7 @@
 #include "StateTEST.h"
 
 void StateBarBlue::update(){
-    // if (!ctx_->ourRobot->colorDetect())
-    //     ctx_->transitionTo(new StateBlueReverse);
-    ctx_->transitionTo(new StateTEST);
+    if (ctx_->ourRobot->colorDetect())
+        ctx_->transitionTo(new StateBlueReverse);
+    // ctx_->transitionTo(new StateTEST);
 }
