@@ -12,8 +12,8 @@
 #include "StateTEST.h"
 
 void StateBarRed::update(){
-    // if (!ctx_->ourRobot->colorDetect())
-    //     ctx_->transitionTo(new StateRedReverse);
+    if (ctx_->ourRobot->colorDetect())
+        ctx_->transitionTo(new StateRedReverse);
     // delay(1000);
     // unsigned short colors[4];
     // unsigned short red = 0, green = 0, blue = 0, clear = 0;
@@ -32,5 +32,5 @@ void StateBarRed::update(){
     // delay(1000);
     // if (ctx_->ourRobot->pushbuttonRead() == 1)
     //     ctx_->transitionTo(new StateTEST);
-    ctx_->transitionTo(new StateTEST);
+    // ctx_->transitionTo(new StateTEST);
 }

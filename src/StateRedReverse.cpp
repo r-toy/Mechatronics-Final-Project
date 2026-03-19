@@ -25,7 +25,7 @@ void StateRedReverse::update(){
             if (!(--color))
                 ctx_->transitionTo(new StateButtonRead);
             while (ctx_->ourRobot->scanReadSenses() >= 4){
-                delay(5);
+                
             }
         }
         ctx_->ourRobot->omni4WD(vfwdSetpoint, currentVhorz, currentOmega);
@@ -35,5 +35,5 @@ void StateRedReverse::update(){
 }
 
 void StateRedReverse::exit() {
-    ctx_->ourRobot->move3DOF_heading(20, 0, -90);
+    ctx_->ourRobot->move3DOF_heading(30, 0, -90);
 }
